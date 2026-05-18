@@ -1,0 +1,23 @@
+# Archivos de sistema macOS
+.DS_Store
+
+# Java y Compilación
+*.class
+*.jar
+*.war
+/bin/
+/build/
+target/
+
+# IDEs (VS Code y Eclipse)
+.settings/
+.project
+.classpath
+.metadata/
+.vscode/
+*.launch
+*.factorypath
+
+# Base de Datos y Logs
+*.log
+*.sql.bak
