@@ -11,8 +11,8 @@ target/
 
 # IDEs (VS Code y Eclipse)
 .settings/
-.project
-.classpath
+#.project
+#.classpath
 .metadata/
 .vscode/
 *.launch
