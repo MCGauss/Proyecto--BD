@@ -14,4 +14,30 @@ public class Inscripciones extends Transaccion {
 		// TODO Auto-generated constructor stub
 	}
 
+	//Getters y setters
+	public Usuarios getUser() {
+		return user;
+	}
+
+	public void setUser(Usuarios user) {
+		this.user = user;
+	}
+
+	public Jornadas getJornada() {
+		return jornada;
+	}
+
+	public void setJornada(Jornadas jornada) {
+		this.jornada = jornada;
+	}
+
+	public TipoInscripcion getTipoInscripcion() {
+		return tipoInscripcion;
+	}
+
+	public void setTipoInscripcion(TipoInscripcion tipoInscripcion) {
+		this.tipoInscripcion = tipoInscripcion;
+	}
+
+	
 }
