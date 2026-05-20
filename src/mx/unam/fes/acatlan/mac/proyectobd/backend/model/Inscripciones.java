@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 public class Inscripciones extends Transaccion {
 	//Atributos
 	private Usuarios user;
-    //private Jornada jornada; // Puede ser null si es inscripción al torneo completo
+    private Jornadas jornada; // Puede ser null si es inscripción al torneo completo
     private String tipoInscripcion; // "SEMANAL" o "GLOBAL"
 	
 	//Constructor heredado
