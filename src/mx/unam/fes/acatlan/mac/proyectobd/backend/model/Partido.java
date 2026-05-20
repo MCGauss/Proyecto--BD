@@ -1,5 +1,7 @@
 package mx.unam.fes.acatlan.mac.proyectobd.backend.model;
 
+import java.time.LocalDateTime;
+
 public class Partido {
 	//Atributos
 	protected int idPartido;
@@ -8,17 +10,18 @@ public class Partido {
     private Equipos equipoVisitante;
     protected Integer golesLocal; //Usar objeto Integer para que permita null si no se ha jugado
     protected Integer golesVisitante;
-    protected String statusPartido; //Programado, finalizado o pospuesto
+    protected LocalDateTime fechaHoraProg;
+    private StatusPartido statusPartido; //Programado, finalizado o pospuesto
 	
     public Partido(int idPartido, Jornadas jornada, Equipos equipoLocal, Equipos equipoVisitante, Integer golesLocal,
-			Integer golesVisitante, String statusPartido) {
-		super();
+			Integer golesVisitante, LocalDateTime fechaHoraProg, StatusPartido statusPartido) {
 		this.idPartido = idPartido;
 		this.jornada = jornada;
 		this.equipoLocal = equipoLocal;
 		this.equipoVisitante = equipoVisitante;
 		this.golesLocal = null; //Iniciar en null porque no se ha jugado
 		this.golesVisitante = null;
+		this.fechaHoraProg = fechaHoraProg;
 		this.statusPartido = statusPartido;
 	}
 
@@ -69,12 +72,20 @@ public class Partido {
 	public void setGolesVisitante(Integer golesVisitante) {
 		this.golesVisitante = golesVisitante;
 	}
+	
+	public LocalDateTime getFechaHoraProg() {
+		return fechaHoraProg;
+	}
+	
+	public void setFechaHoraProg(LocalDateTime fechaHoraProg) {
+		this.fechaHoraProg = fechaHoraProg;
+	}
 
-	public String getStatusPartido() {
+	public StatusPartido getStatusPartido() {
 		return statusPartido;
 	}
 
-	public void setStatusPartido(String statusPartido) {
+	public void setStatusPartido(StatusPartido statusPartido) {
 		this.statusPartido = statusPartido;
 	}
     

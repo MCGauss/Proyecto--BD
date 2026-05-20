@@ -7,16 +7,16 @@ public class Usuarios implements DatosPersonales{
 	protected String email;
 	protected String password;
 	protected double saldo;
-	private int idRol;
+	private Rol rol;
 	
 	//Constructor
-	public Usuarios(int idUsuario, String username, String email, String password, double saldo, int idRol) {
+	public Usuarios(int idUsuario, String username, String email, String password, double saldo, Rol rol) {
 		this.idUsuario = idUsuario;
 		this.username = username;
 		this.email = email;
 		this.password = password;
 		this.saldo = saldo;
-		this.idRol = idRol;
+		this.rol = rol;
 	}
 
 	public int getIdUsuario() {
@@ -59,12 +59,12 @@ public class Usuarios implements DatosPersonales{
 		this.saldo = saldo;
 	}
 
-	public int getIdRol() {
-		return idRol;
+	public int getRol() {
+		return rol;
 	}
 
-	public void setIdRol(int idRol) {
-		this.idRol = idRol;
+	public void setRol(Rol rol) {
+		this.rol = rol;
 	}
 
 	@Override
