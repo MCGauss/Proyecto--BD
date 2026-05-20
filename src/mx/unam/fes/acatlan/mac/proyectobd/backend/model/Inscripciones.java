@@ -6,7 +6,7 @@ public class Inscripciones extends Transaccion {
 	//Atributos
 	private Usuarios user;
     private Jornadas jornada; // Puede ser null si es inscripción al torneo completo
-    private String tipoInscripcion; // "SEMANAL" o "GLOBAL"
+    private TipoInscripcion tipoInscripcion; // "SEMANAL" o "GLOBAL"
 	
 	//Constructor heredado
 	public Inscripciones(int id, double monto, LocalDateTime fecha, String status) {
