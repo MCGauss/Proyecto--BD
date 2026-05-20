@@ -9,8 +9,8 @@ public class Inscripciones extends Transaccion {
     private TipoInscripcion tipoInscripcion; // "SEMANAL" o "GLOBAL"
 	
 	//Constructor heredado
-	public Inscripciones(int id, double monto, LocalDateTime fecha, String status) {
-		super(id, monto, fecha, status);
+	public Inscripciones(int idTrans, double montoTrans, LocalDateTime fechaTrans, StatusTransaccion statusTrans) {
+		super(idTrans, montoTrans, fechaTrans, statusTrans);
 		// TODO Auto-generated constructor stub
 	}
 
