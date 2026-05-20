@@ -59,7 +59,7 @@ public class Usuarios implements DatosPersonales{
 		this.saldo = saldo;
 	}
 
-	public int getRol() {
+	public Rol getRol() {
 		return rol;
 	}
 
