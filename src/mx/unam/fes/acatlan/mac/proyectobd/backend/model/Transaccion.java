@@ -17,6 +17,10 @@ public abstract class Transaccion {
 		this.fechaTrans = fechaTrans;
 		this.statusTrans= statusTrans;
 	}
+	
+	public Transaccion() {
+		
+	}
 
 	//Getters y Setters
 	public int getIdTrans() {

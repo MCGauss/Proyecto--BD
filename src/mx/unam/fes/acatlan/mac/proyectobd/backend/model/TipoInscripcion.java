@@ -11,6 +11,10 @@ public class TipoInscripcion {
 		this.tipoInscripcion = tipoInscripcion;
 	}
 
+	public TipoInscripcion() {
+		// TODO Auto-generated constructor stub
+	}
+
 	//Getters y setters
 	public int getIdTipoInscripcion() {
 		return idTipoInscripcion;

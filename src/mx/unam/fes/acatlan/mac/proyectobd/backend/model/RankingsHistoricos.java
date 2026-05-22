@@ -4,20 +4,24 @@ public class RankingsHistoricos {
 	//Atributos
 	protected int idRanking;
 	protected int puntos;
-	protected int acietos;
+	protected int aciertos;
 	protected int errores;
 	private Usuarios usuario;
 	private Predicciones prediccion;
 	
 	//Constructor
-	public RankingsHistoricos(int idRanking, int puntos, int acietos, int errores, Usuarios usuario,
+	public RankingsHistoricos(int idRanking, int puntos, int aciertos, int errores, Usuarios usuario,
 			Predicciones prediccion) {
 		this.idRanking = idRanking;
 		this.puntos = puntos;
-		this.acietos = acietos;
+		this.aciertos = aciertos;
 		this.errores = errores;
 		this.usuario = usuario;
 		this.prediccion = prediccion;
+	}
+	
+	public RankingsHistoricos() {
+		
 	}
 
 	//Getters y Setters
@@ -37,12 +41,12 @@ public class RankingsHistoricos {
 		this.puntos = puntos;
 	}
 
-	public int getAcietos() {
-		return acietos;
+	public int getAciertos() {
+		return aciertos;
 	}
 
-	public void setAcietos(int acietos) {
-		this.acietos = acietos;
+	public void setAciertos(int aciertos) {
+		this.aciertos = aciertos;
 	}
 
 	public int getErrores() {

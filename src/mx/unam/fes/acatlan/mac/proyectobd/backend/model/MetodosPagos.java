@@ -11,6 +11,10 @@ public class MetodosPagos {
 		this.metodoPago = metodoPago;
 	}
 	
+	public MetodosPagos() {
+		
+	}
+	
 	//Getters y setters
 	public int getIdMetodo() {
 		return idMetodo;

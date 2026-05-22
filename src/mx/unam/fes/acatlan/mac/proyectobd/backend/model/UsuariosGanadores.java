@@ -20,6 +20,10 @@ public class UsuariosGanadores {
 		this.ranking = ranking;
 	}
 	
+	public UsuariosGanadores() {
+		// TODO Auto-generated constructor stub
+	}
+
 	// getters y setters
     public int getIdGanador() {
         return idGanador;

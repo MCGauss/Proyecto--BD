@@ -25,6 +25,10 @@ public class Partido {
 		this.statusPartido = statusPartido;
 	}
 
+	public Partido() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public int getIdPartido() {
 		return idPartido;
 	}

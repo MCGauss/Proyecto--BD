@@ -20,6 +20,10 @@ public class Predicciones {
 		this.partido = partido;
 	}
 
+	public Predicciones() {
+		// TODO Auto-generated constructor stub
+	}
+
 	//Getters y Setters
 	public int getIdPrediccion() {
 		return idPrediccion;

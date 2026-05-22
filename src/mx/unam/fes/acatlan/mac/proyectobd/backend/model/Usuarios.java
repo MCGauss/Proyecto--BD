@@ -19,6 +19,10 @@ public class Usuarios implements DatosPersonales{
 		this.rol = rol;
 	}
 
+	public Usuarios() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public int getIdUsuario() {
 		return idUsuario;
 	}
