@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public class Inscripciones extends Transaccion {
 	//Atributos
-	private Usuarios user;
+	private Usuarios usuario;
     private Jornadas jornada; // Puede ser null si es inscripción al torneo completo
     private TipoInscripcion tipoInscripcion; // "SEMANAL" o "GLOBAL"
 	
@@ -12,15 +12,22 @@ public class Inscripciones extends Transaccion {
 	public Inscripciones(int idTrans, double montoTrans, LocalDateTime fechaTrans, StatusTransaccion statusTrans) {
 		super(idTrans, montoTrans, fechaTrans, statusTrans);
 		// TODO Auto-generated constructor stub
+	
 	}
+
+	public Inscripciones() {
+		// TODO Auto-generated constructor stub
+	}
+
+
 
 	//Getters y setters
-	public Usuarios getUser() {
-		return user;
+	public Usuarios getUsuario() {
+		return usuario;
 	}
 
-	public void setUser(Usuarios user) {
-		this.user = user;
+	public void setUsuario(Usuarios usuario) {
+		this.usuario = usuario;
 	}
 
 	public Jornadas getJornada() {

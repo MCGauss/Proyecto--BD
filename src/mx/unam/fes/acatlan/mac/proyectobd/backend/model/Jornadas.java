@@ -13,6 +13,10 @@ public class Jornadas {
 		this.torneo = torneo;
 	}
 	
+	public Jornadas() {
+		// TODO Auto-generated constructor stub
+	}
+
 	//getters y setters
 	public int getIdJornada() {
 		return idJornada;

@@ -15,7 +15,11 @@ public class BolsaPremios {
         this.statusBolsa = statusBolsa;
     }
 
-    // getters y setters
+    public BolsaPremios() {
+		// TODO Auto-generated constructor stub
+	}
+
+	// getters y setters
     public int getIdBolsa() {
         return idBolsa;
     }
