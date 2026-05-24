@@ -3,7 +3,6 @@ package mx.unam.fes.acatlan.mac.proyectobd.backend.DAO;
 import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Inscripciones;
 import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Jornadas;
 import mx.unam.fes.acatlan.mac.proyectobd.backend.model.TipoInscripcion;
-import mx.unam.fes.acatlan.mac.proyectobd.backend.model.StatusTransaccion;
 import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Usuarios;
 
 import java.sql.Connection;
@@ -15,7 +14,7 @@ import java.util.List;
 
 public class InscripcionesDAO {
 
-	private final Connection conexion;
+    private final Connection conexion;
 
     // Constructor que recibe la conexión activa
     public InscripcionesDAO(Connection conexion) {
@@ -25,8 +24,10 @@ public class InscripcionesDAO {
     /**
      * INSERT: Registra una nueva inscripción (pago de cuota).
      * Soporta que el id_jornada sea NULL si es una inscripción global del torneo ($500).
+     * * COMPATIBILIDAD: Lanza SQLException hacia la capa superior para que la interfaz pueda 
+     * recuperar y mostrar el mensaje de error personalizado lanzado por el TRIGGER en Postgres.
      */
-    public boolean registrarInscripcion(Inscripciones ins) {
+    public boolean registrarInscripcion(Inscripciones ins) throws SQLException {
         String query = "INSERT INTO inscripciones (id_usuario, id_jornada, id_tipo_inscripcion, cuota_pagada) "
                    + "VALUES (?, ?, ?, ?);";
 
@@ -41,12 +42,12 @@ public class InscripcionesDAO {
             }
             
             ps.setInt(3, ins.getTipoInscripcion().getIdTipoInscripcion());
-            ps.setDouble(4, ins.getMontoTrans()); // Usamos el método getMonto() heredado de Transaccion
+            ps.setDouble(4, ins.getMontoTrans()); // Usamos el método heredado de Transaccion
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            // Mandamos el error completo (incluyendo el RAISE EXCEPTION del trigger) al controlador/interfaz
+            throw e;
         }
     }
 
@@ -106,7 +107,6 @@ public class InscripcionesDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    // Instanciamos la inscripción
                     Inscripciones ins = new Inscripciones();
                     ins.setIdTrans(rs.getInt("id_inscripcion"));
                     ins.setMontoTrans(rs.getDouble("cuota_pagada"));
@@ -138,28 +138,5 @@ public class InscripcionesDAO {
             e.printStackTrace();
         }
         return lista;
-    }
-    
-    /**
-     * UPDATE: Permite al administrador aprobar o rechazar un pago de inscripción.
-     * @param idInscripcion El identificador único de la inscripción a modificar.
-     * @param nuevoEstado El nuevo estado (p. ej., "APROBADO", "RECHAZADO").
-     * @return true si la actualización en la BD fue exitosa.
-     */
-    public boolean cambiarEstadoTransaccion(int idInscripcion, StatusTransaccion nuevoEstado) {
-        // Si manejas un ENUM para el estado de la transacción, puedes cambiar el parámetro String por tu Enum
-        String query = "UPDATE inscripciones SET estado = ? WHERE id_inscripcion = ?;"; //estado(?
-
-        try (PreparedStatement ps = conexion.prepareStatement(query)) {
-        	// ASIGNACIÓN CON ENUM: Usa .name() para mandar "APROBADO", "PENDIENTE" o "RECHAZADO" como String
-        	ps.setString(1, nuevoEstado.name());
-            ps.setInt(2, idInscripcion);
-
-            // executeUpdate devuelve el número de filas afectadas. Si es mayor a 0, se guardó correctamente.
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
     }
 }
