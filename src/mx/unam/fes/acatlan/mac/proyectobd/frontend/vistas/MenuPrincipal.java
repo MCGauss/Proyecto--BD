@@ -1,6 +1,7 @@
 package mx.unam.fes.acatlan.mac.proyectobd.frontend.vistas;
 
 import java.awt.*;
+import java.io.File;
 import java.sql.Connection; // CONEXIÓN INTEGRADA A POSTGRESQL
 import javax.swing.*;
 import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Usuarios; // IMPORTA TU MODELO
@@ -45,37 +46,63 @@ public class MenuPrincipal extends JFrame {
         setLayout(new BorderLayout());
 
         // =========================================================
-        // PANEL DE MENÚ (BARRA LATERAL)
+        // PANEL DE MENÚ (BARRA LATERAL - DISEÑO FIEL A TONY)
         // =========================================================
         panelMenu = new JPanel();
         panelMenu.setPreferredSize(new Dimension(260, 700));
-        panelMenu.setBackground(new Color(15, 23, 42));
+        panelMenu.setBackground(new Color(15, 23, 42)); // Azul oscuro profundo original
         panelMenu.setLayout(null);
 
-        // TÍTULO DE LA APP
-        lblTitulo = new JLabel("PRO-QUINIELAS");
-        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        lblTitulo.setForeground(new Color(248, 250, 252));
-        lblTitulo.setBounds(30, 40, 200, 30);
+        // TÍTULO DE LA APP: Regresamos al original de Tony
+        lblTitulo = new JLabel("QUINIELAS");
+        lblTitulo.setForeground(Color.WHITE);
+        lblTitulo.setFont(new Font("Arial", Font.BOLD, 28));
+        lblTitulo.setBounds(40, 40, 220, 40);
         panelMenu.add(lblTitulo);
 
-        // SUBTÍTULO CON NOMBRE DINÁMICO DESDE EL MODELO
-        String userDisplay = (usuarioSesion != null) ? usuarioSesion.getUsername() : "Usuario";
-        lblSubtitulo = new JLabel("Hola, " + userDisplay);
-        lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        // SUBTÍTULO: Sello oficial del equipo "THE FOREIGN KEY SQUAD"
+        lblSubtitulo = new JLabel("THE FOREIGN KEY SQUAD");
         lblSubtitulo.setForeground(new Color(148, 163, 184));
-        lblSubtitulo.setBounds(30, 75, 200, 20);
+        lblSubtitulo.setFont(new Font("Arial", Font.PLAIN, 14));
+        lblSubtitulo.setBounds(25, 80, 220, 30);
         panelMenu.add(lblSubtitulo);
 
-        // REUTILIZACIÓN DE ESTILOS PARA LOS BOTONES DEL MENÚ LATERAL
-        btnQuinielas = crearBotonMenu("JUGAR QUINIELAS", 150);
-        btnRanking = crearBotonMenu("RANKING GLOBAL", 210);
-        btnCuenta = crearBotonMenu("MI CUENTA", 270);
-        btnSalir = crearBotonMenu("CERRAR SESIÓN", 560);
-        
-        // Estilo especial de salida (Rojo/Gris Slate oscuro)
-        btnSalir.setBackground(new Color(30, 41, 59));
-        btnSalir.setForeground(new Color(239, 68, 68));
+        // BOTONES CON COLORES, FUENTES, COORDENADAS Y TEXTOS EXACTOS DE TONY
+        btnQuinielas = new JButton("QUINIELAS");
+        btnQuinielas.setBounds(25, 160, 200, 50);
+        btnQuinielas.setBackground(new Color(59, 130, 246)); // Azul brillante
+        btnQuinielas.setForeground(Color.WHITE);
+        btnQuinielas.setFont(new Font("Arial", Font.BOLD, 16));
+        btnQuinielas.setFocusPainted(false);
+        btnQuinielas.setBorderPainted(false);
+        btnQuinielas.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        btnRanking = new JButton("RANKING");
+        btnRanking.setBounds(25, 240, 200, 50);
+        btnRanking.setBackground(new Color(16, 185, 129)); // Verde éxito
+        btnRanking.setForeground(Color.WHITE);
+        btnRanking.setFont(new Font("Arial", Font.BOLD, 16));
+        btnRanking.setFocusPainted(false);
+        btnRanking.setBorderPainted(false);
+        btnRanking.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        btnCuenta = new JButton("MI CUENTA");
+        btnCuenta.setBounds(25, 320, 200, 50);
+        btnCuenta.setBackground(new Color(245, 158, 11)); // Ámbar/Naranja cuenta
+        btnCuenta.setForeground(Color.WHITE);
+        btnCuenta.setFont(new Font("Arial", Font.BOLD, 16));
+        btnCuenta.setFocusPainted(false);
+        btnCuenta.setBorderPainted(false);
+        btnCuenta.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        btnSalir = new JButton("CERRAR SESIÓN");
+        btnSalir.setBounds(25, 480, 200, 45); 
+        btnSalir.setBackground(new Color(71, 85, 105)); // Gris Slate de salida discreto
+        btnSalir.setForeground(Color.WHITE);
+        btnSalir.setFont(new Font("Arial", Font.BOLD, 15));
+        btnSalir.setFocusPainted(false);
+        btnSalir.setBorderPainted(false);
+        btnSalir.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         panelMenu.add(btnQuinielas);
         panelMenu.add(btnRanking);
@@ -83,9 +110,25 @@ public class MenuPrincipal extends JFrame {
         panelMenu.add(btnSalir);
 
         // =========================================================
-        // PANEL DE CONTENIDO (FONDO ANIMADO DEL ESTADIO)
+        // PANEL DE CONTENIDO (FONDO ANIMADO CON LEYENDA ORIGINAL)
         // =========================================================
         panelContenido = new PanelFondoGif();
+        panelContenido.setLayout(null);
+
+        // Respetamos el mensaje de bienvenida de Tony incluyendo el usuario logueado dinámicamente
+        String userDisplay = (usuarioSesion != null) ? usuarioSesion.getUsername().toUpperCase() : "USER";
+        JLabel bienvenida = new JLabel("BIENVENIDO AL SISTEMA, " + userDisplay);
+        bienvenida.setFont(new Font("Arial", Font.BOLD, 34));
+        bienvenida.setForeground(new Color(15, 23, 42));
+        bienvenida.setBounds(220, 40, 650, 50);
+
+        JLabel descripcion = new JLabel("Administra tus quinielas y predicciones");
+        descripcion.setFont(new Font("Arial", Font.PLAIN, 20));
+        descripcion.setForeground(new Color(71, 85, 105));
+        descripcion.setBounds(220, 95, 500, 40);
+
+        panelContenido.add(bienvenida);
+        panelContenido.add(descripcion);
 
         // INTEGRAR PANELES AL FRAME PRINCIPAL
         add(panelMenu, BorderLayout.WEST);
@@ -93,26 +136,10 @@ public class MenuPrincipal extends JFrame {
     }
 
     /**
-     * MÉTODOS AUXILIARES: Creación de botones estilizados para el menú
-     */
-    private JButton crearBotonMenu(String texto, int posY) {
-        JButton boton = new JButton(texto);
-        boton.setBounds(20, posY, 220, 45);
-        boton.setBackground(new Color(30, 41, 59));
-        boton.setForeground(new Color(241, 245, 249));
-        boton.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        boton.setFocusPainted(false);
-        boton.setBorderPainted(false);
-        boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        return boton;
-    }
-
-    /**
      * NAVEGACIÓN COMPLETA PROPAGANDO LA CONEXIÓN Y EL USUARIO A LAS SIGUIENTES PANTALLAS
      */
     private void configurarNavegacionBD() {
         btnSalir.addActionListener(e -> {
-            // Regresa al login pasándole únicamente la conexión limpia
             new LoginFrame(conexion).setVisible(true);
             dispose();
         });
@@ -134,35 +161,50 @@ public class MenuPrincipal extends JFrame {
     }
 
     /**
-     * CLASE INTERNA: Administrador del fondo visual con el recurso multimedia
+     * CLASE INTERNA: Administrador del fondo visual con el recurso multimedia (.gif)
      */
     private class PanelFondoGif extends JPanel {
         private static final long serialVersionUID = 1L;
         private Image imagenFondo;
 
         public PanelFondoGif() {
-        	// CORREGIDO: Apuntando directamente a la carpeta assets oficial en la raíz de src
-        	String rutaGif = "/assets/futbol.gif";
-            java.net.URL url = getClass().getResource(rutaGif);
-            if (url != null) {
-                imagenFondo = new ImageIcon(url).getImage();
+            // CORRECCIÓN DE DISCO: Validamos la carpeta externa 'Assets' que vimos en el árbol de Eclipse
+            File archivoGif = new File("Assets/futbol.gif");
+            if (archivoGif.exists()) {
+                imagenFondo = new ImageIcon(archivoGif.getAbsolutePath()).getImage();
             } else {
-            	System.out.println("Advertencia: No se encontró el GIF mediante getResource, usando ruta relativa.");
-                // 2. CORREGIDO: Ruta relativa directa del sistema de archivos para el proyecto oficial
-                imagenFondo = new ImageIcon("src/assets/futbol2.gif").getImage();
+                // Fallback clásico por Classpath interno en src/assets por si acaso
+                java.net.URL url = getClass().getResource("/assets/futbol.gif");
+                if (url != null) {
+                    imagenFondo = new ImageIcon(url).getImage();
+                } else {
+                    // Fallback alternativo de recursos ordinario
+                    java.net.URL urlRecursos = getClass().getResource("/recursos/futbol.gif");
+                    if (urlRecursos != null) {
+                        imagenFondo = new ImageIcon(urlRecursos).getImage();
+                    }
+                }
             }
         }
 
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g.create();
+
+            // Fondo base grisáceo claro idéntico al de Tony
+            g2d.setColor(new Color(226, 232, 240));
+            g2d.fillRect(0, 0, getWidth(), getHeight());
+
             if (imagenFondo != null) {
-                g.drawImage(imagenFondo, 0, 0, getWidth(), getHeight(), this);
-            } else {
-                // Color fallback por si no se encuentra el GIF
-                g.setColor(new Color(30, 41, 59));
-                g.fillRect(0, 0, getWidth(), getHeight());
+                g2d.drawImage(imagenFondo, 0, 0, getWidth(), getHeight(), this);
             }
+
+            // Capa de opacidad traslúcida oficial (180 de Alpha) para mantener legibles los textos oscuros
+            g2d.setColor(new Color(226, 232, 240, 180)); 
+            g2d.fillRect(0, 0, getWidth(), getHeight());
+
+            g2d.dispose();
         }
     }
 }
