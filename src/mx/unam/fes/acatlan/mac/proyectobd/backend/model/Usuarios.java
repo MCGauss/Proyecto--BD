@@ -5,16 +5,16 @@ public class Usuarios implements DatosPersonales{
 	protected int idUsuario;
 	protected String username;
 	protected String email;
-	protected String password;
+	protected String passsword;
 	protected double saldo;
 	private Rol rol;
 	
 	//Constructor
-	public Usuarios(int idUsuario, String username, String email, String password, double saldo, Rol rol) {
+	public Usuarios(int idUsuario, String username, String email, String passsword, double saldo, Rol rol) {
 		this.idUsuario = idUsuario;
 		this.username = username;
 		this.email = email;
-		this.password = password;
+		this.passsword = passsword;
 		this.saldo = saldo;
 		this.rol = rol;
 	}
@@ -47,12 +47,12 @@ public class Usuarios implements DatosPersonales{
 		this.email = email;
 	}
 
-	public String getPassword() {
-		return password;
+	public String getPasssword() {
+		return passsword;
 	}
 
-	public void setPassword(String password) {
-		this.password = password;
+	public void setPasssword(String passsword) {
+		this.passsword = passsword;
 	}
 
 	public double getSaldo() {

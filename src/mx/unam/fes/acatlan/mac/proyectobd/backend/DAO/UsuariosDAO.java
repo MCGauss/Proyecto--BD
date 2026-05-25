@@ -12,7 +12,7 @@ import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Usuarios;
 public class UsuariosDAO {
 
     // metodo para el inicio de sesion
-    public Usuarios validarLogin(String email, String password) {
+    public Usuarios validarLogin(String email, String passsword) {
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -22,14 +22,14 @@ public class UsuariosDAO {
             conn = Conexion.getConexion();
             if (conn != null) {
                 // los signos "?" actuan como comodines seguros contra inyeccion SQL
-                String query = "SELECT u.id_usuario, u.username, u.email, u.password, u.saldo, r.descripcion_rol " +
+                String query = "SELECT u.id_usuario, u.username, u.email, u.passsword, u.saldo, r.descripcion_rol " +
                                "FROM usuarios u " +
                                "JOIN roles r ON u.id_rol = r.id_rol " +
-                               "WHERE u.email = ? AND u.password = ?";
+                               "WHERE u.email = ? AND u.passsword = ?";
                                
                 pstmt = conn.prepareStatement(query);
                 pstmt.setString(1, email);
-                pstmt.setString(2, password);
+                pstmt.setString(2, passsword);
                 
                 rs = pstmt.executeQuery();
                 
@@ -43,7 +43,7 @@ public class UsuariosDAO {
                         rs.getInt("id_usuario"),
                         rs.getString("username"),
                         rs.getString("email"),
-                        rs.getString("password"),
+                        rs.getString("passsword"),
                         rs.getDouble("saldo"),
                         rolEnum
                     );
@@ -79,7 +79,7 @@ public class UsuariosDAO {
                 
                 pstmt.setString(1, usuario.getUsername());
                 pstmt.setString(2, usuario.getEmail());
-                pstmt.setString(3, usuario.getPassword());
+                pstmt.setString(3, usuario.getPasssword());
                 pstmt.setDouble(4, usuario.getSaldo());
                 pstmt.setInt(5, idRolDb);
                 
