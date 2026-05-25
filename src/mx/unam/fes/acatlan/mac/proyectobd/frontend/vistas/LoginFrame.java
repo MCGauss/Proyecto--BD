@@ -46,8 +46,8 @@ public class LoginFrame extends JFrame {
         panelIzquierdo.setLayout(null);
 
         lblLogo = new JLabel();
-        // CORREGIDO: Ruta absoluta basada en la nueva estructura de recursos
-        java.net.URL urlLogo = getClass().getResource("/mx/unam/fes/acatlan/mac/proyectobd/frontend/recursos/logo.png");
+     // CORREGIDO: Apuntando a la carpeta assets oficial en la raíz de src
+        java.net.URL urlLogo = getClass().getResource("/assets/logo.png");
         if (urlLogo != null) {
             lblLogo.setIcon(new ImageIcon(urlLogo));
         }
