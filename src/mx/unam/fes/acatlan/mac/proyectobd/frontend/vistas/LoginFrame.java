@@ -110,12 +110,16 @@ public class LoginFrame extends JFrame {
 
         btnLogin = new JButton("INICIAR SESIÓN");
         btnLogin.setBounds(100, 380, 250, 40);
+        btnLogin.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnLogin.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         btnLogin.setBackground(new Color(59,130,246));
         btnLogin.setForeground(Color.WHITE);
         btnLogin.setFont(new Font("Arial", Font.BOLD, 14));
 
         btnRegistro = new JButton("REGISTRARSE");
         btnRegistro.setBounds(100, 440, 250, 40);
+        btnRegistro.setOpaque(true);         // <- Obliga a pintar el fondo en Mac
+        btnRegistro.setBorderPainted(false); // <- Quita el borde Aqua nativo de Mac
         btnRegistro.setBackground(new Color(16,185,129));
         btnRegistro.setForeground(Color.WHITE);
         btnRegistro.setFont(new Font("Arial", Font.BOLD, 14));
