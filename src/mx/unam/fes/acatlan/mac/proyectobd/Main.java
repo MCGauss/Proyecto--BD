@@ -16,7 +16,7 @@ public class Main {
             Connection conexion = Conexion.getConexion();
             
             if (conexion != null && !conexion.isClosed()) {
-                System.out.println("¡Conexión exitosa a PostgreSQL establecida!");
+                System.out.println("Conexión exitosa a PostgreSQL establecida.");
                 
                 java.awt.EventQueue.invokeLater(() -> {
                     LoginFrame login = new LoginFrame(conexion);

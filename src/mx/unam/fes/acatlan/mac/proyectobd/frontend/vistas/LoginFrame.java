@@ -24,7 +24,7 @@ public class LoginFrame extends JFrame {
     public LoginFrame(Connection conexion) {
         this.conexion = conexion;
 
-        setTitle("Sistema de Quinielas");
+        setTitle("FootBets");
         setSize(900, 550);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -66,7 +66,7 @@ public class LoginFrame extends JFrame {
         }
         lblLogo.setBounds(125, 80, 200, 200);
 
-        lblSistema = new JLabel("SISTEMA DE QUINIELAS", SwingConstants.CENTER);
+        lblSistema = new JLabel("FOOTBETS", SwingConstants.CENTER);
         lblSistema.setForeground(Color.WHITE);
         lblSistema.setFont(new Font("Arial", Font.BOLD, 22));
         lblSistema.setBounds(50, 310, 350, 40);

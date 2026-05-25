@@ -1,12 +1,13 @@
 package mx.unam.fes.acatlan.mac.proyectobd.backend.model;
 
+
 public class Usuarios {
     
     // Atributos protegidos que mapean la Tabla 18 del LDD
     protected int idUsuario;     // id_usuario SERIAL
     protected String username;   // username CHARACTER VARYING(25)
     protected String email;      // email CHARACTER VARYING(80)
-    protected String password;   // Mapea internamente a 'passsword' de la BD
+    protected String passsword;   // Mapea internamente a 'passsword' de la BD
     protected double saldo;      // saldo NUMERIC(8,2)
     private Rol rol;             // id_rol INTEGER (Mapeado a tu Enum)
     
@@ -14,12 +15,13 @@ public class Usuarios {
     public Usuarios() {
     }
 
+
     // Constructor completo para flujos de login y registro
-    public Usuarios(int idUsuario, String username, String email, String password, double saldo, Rol rol) {
+    public Usuarios(int idUsuario, String username, String email, String passsword, double saldo, Rol rol) {
         this.idUsuario = idUsuario;
         this.username = username;
         this.email = email;
-        this.password = password;
+        this.passsword = passsword;
         this.saldo = saldo;
         this.rol = rol;
     }
@@ -49,13 +51,13 @@ public class Usuarios {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
-    }
+	public String getPasssword() {
+		return passsword;
+	}
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	public void setPasssword(String passsword) {
+		this.passsword = passsword;
+	}
 
     public double getSaldo() {
         return saldo;

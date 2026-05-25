@@ -18,21 +18,17 @@ public class Conexion {
             // 1. Cargamos el Driver de PostgreSQL (el .jar)
             Class.forName("org.postgresql.Driver"); 
             
-            // ====================================================================
-            // CONFIGURACIÓN DE REPOSITORIO (DESCOMENTA TU LÍNEA ANTES DE CORRER)
-            // ====================================================================
 
-            // OPCIÓN PARA MARCO 
+            // 2. Definimos la dirección del servidor local de tu MacBook
+            /*
             String servidor = "jdbc:postgresql://127.0.0.1:5432/prueba_proyecto"; 
             String usuarioDB = "postgres";
-            String passwordDB = "331968"; 
+            String passwordDB = "331968"; */
 
-            // OPCIÓN PARA DIANA (Descomenta para usar y comenta mi bloque)
-            // String servidor = "jdbc:postgresql://127.0.0.1:5432/nombre_de_tu_bd"; 
-            // String usuarioDB = "postgres";
-            // String passwordDB = "tu contraseña de postgres"; 
-
-            // ====================================================================
+            //Opción 2
+            String servidor = "jdbc:postgresql://127.0.0.1:5432/dbLigaMX"; 
+            String usuarioDB = "postgres";
+            String passwordDB = "Jack09#"; 
             
             // 3. El DriverManager fabrica el puente físico usando las variables de arriba
             conn = DriverManager.getConnection(servidor, usuarioDB, passwordDB);
@@ -48,3 +44,4 @@ public class Conexion {
         return conn; 
     }
 }
+

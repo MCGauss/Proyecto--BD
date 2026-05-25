@@ -30,7 +30,7 @@ public class MenuPrincipal extends JFrame {
         this.conexion = conexion;
         this.usuarioSesion = usuarioLogueado;
 
-        setTitle("Sistema de Quinielas");
+        setTitle("FootBets");
         setSize(1200, 700);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -54,7 +54,7 @@ public class MenuPrincipal extends JFrame {
         panelMenu.setLayout(null);
 
         // TÍTULO DE LA APP: Regresamos al original de Tony
-        lblTitulo = new JLabel("QUINIELAS");
+        lblTitulo = new JLabel("FootBets");
         lblTitulo.setForeground(Color.WHITE);
         lblTitulo.setFont(new Font("Arial", Font.BOLD, 28));
         lblTitulo.setBounds(40, 40, 220, 40);

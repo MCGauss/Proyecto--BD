@@ -6,8 +6,11 @@ package mx.unam.fes.acatlan.mac.proyectobd.frontend.vistas;
 
 import java.awt.*;
 import java.sql.Connection; // INTEGRADO PARA LA CONEXIÓN A POSTGRESQL
+import java.sql.SQLException;
 import javax.swing.*;
-import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Usuarios; // IMPORTA TU MODELO
+import java.util.List;
+import mx.unam.fes.acatlan.mac.proyectobd.backend.model.*; // IMPORTA TU MODELO
+import mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.*;
 
 public class JornadaHubFrame extends JFrame {
 
@@ -27,24 +30,21 @@ public class JornadaHubFrame extends JFrame {
     // ATRIBUTOS DE PERSISTENCIA INYECTADOS
     private Connection conexion;
     private Usuarios usuarioSesion;
+    private JornadasDAO jornadasDAO;
+    private BolsaPremiosDAO bolsaDAO;
 
     // CONSTRUCTOR MODIFICADO PARA RECIBIR Y MANTENER LA SESIÓN ACTIVA
     public JornadaHubFrame(Connection conexion, Usuarios usuarioSesion) {
         this.conexion = conexion;
         this.usuarioSesion = usuarioSesion;
+        
 
         setTitle("Quiniela por Jornada");
-
         setSize(1400, 850);
-
         setLocationRelativeTo(null);
-
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
         setResizable(true);
-
         iniciarComponentes();
-
         setVisible(true);
     }
 
