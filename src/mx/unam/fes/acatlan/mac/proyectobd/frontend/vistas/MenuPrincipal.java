@@ -115,9 +115,9 @@ public class MenuPrincipal extends JFrame {
         panelContenido = new PanelFondoGif();
         panelContenido.setLayout(null);
 
-        // Respetamos el mensaje de bienvenida de Tony incluyendo el usuario logueado dinámicamente
+        // Modificamos el mensaje de bienvenida
         String userDisplay = (usuarioSesion != null) ? usuarioSesion.getUsername().toUpperCase() : "USER";
-        JLabel bienvenida = new JLabel("BIENVENIDO AL SISTEMA, " + userDisplay);
+        JLabel bienvenida = new JLabel("BIENVENID@, " + userDisplay);
         bienvenida.setFont(new Font("Arial", Font.BOLD, 34));
         bienvenida.setForeground(new Color(15, 23, 42));
         bienvenida.setBounds(220, 40, 650, 50);
