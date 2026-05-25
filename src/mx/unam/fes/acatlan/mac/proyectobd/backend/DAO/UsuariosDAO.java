@@ -5,40 +5,42 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import mx.unam.fes.acatlan.mac.proyectobd.backend.Conexion;
 import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Rol;
 import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Usuarios;
 
 public class UsuariosDAO {
 
-    // metodo para el inicio de sesion
+    private final Connection conexion;
+
+    /**
+     * Constructor unificado que recibe la conexión activa (Arquitectura MCGauss & Diana).
+     */
+    public UsuariosDAO(Connection conexion) {
+        this.conexion = conexion;
+    }
+
+    /**
+     * SELECT: Valida las credenciales en el inicio de sesión.
+     * CORREGIDO: Se adapta a la tabla 'rol', columna 'nombre_rol' y al campo 'passsword' (con 3 's').
+     */
     public Usuarios validarLogin(String email, String passsword) {
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
         Usuarios userLogueado = null;
         
-        try {
-            conn = Conexion.getConexion();
-            if (conn != null) {
-                // los signos "?" actuan como comodines seguros contra inyeccion SQL
-                String query = "SELECT u.id_usuario, u.username, u.email, u.passsword, u.saldo, r.descripcion_rol " +
-                               "FROM usuarios u " +
-                               "JOIN roles r ON u.id_rol = r.id_rol " +
-                               "WHERE u.email = ? AND u.passsword = ?";
+        // Query corregido con los nombres físicos reales del LDD
+        String query = "SELECT u.id_usuario, u.username, u.email, u.passsword, u.saldo, r.nombre_rol AS descripcion_rol " +
+                       "FROM usuarios u " +
+                       "JOIN rol r ON u.id_rol = r.id_rol " +
+                       "WHERE u.email = ? AND u.passsword = ?;";
                                
-                pstmt = conn.prepareStatement(query);
-                pstmt.setString(1, email);
-                pstmt.setString(2, passsword);
+        try (PreparedStatement pstmt = conexion.prepareStatement(query)) {
+            pstmt.setString(1, email);
+            pstmt.setString(2, passsword);
                 
-                rs = pstmt.executeQuery();
-                
+            try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    // mapeamos la descripcion de la BD al Enum 
                     String descRol = rs.getString("descripcion_rol").toUpperCase();
                     Rol rolEnum = Rol.valueOf(descRol);
                     
-                    // construimos el usuario 
                     userLogueado = new Usuarios(
                         rs.getInt("id_usuario"),
                         rs.getString("username"),
@@ -51,31 +53,27 @@ public class UsuariosDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (pstmt != null) pstmt.close();
-                if (conn != null) conn.close();
-            } catch (SQLException e) { e.printStackTrace(); }
         }
         return userLogueado;
     }
 
-    // metodo para registrar nuevos apostadores en el sistema
-    public boolean registrarUsuario(Usuarios usuario) {
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        boolean exito = false;
+    /**
+     * INSERT: Registra nuevos apostadores en el sistema.
+     * CORREGIDO: Mapeo de columnas y propagación de errores para detectar duplicados en email/username.
+     */
+    public boolean registrarUsuario(Usuarios usuario) throws SQLException {
+        // Query adaptado a la columna 'passsword' del LDD
+        String query = "INSERT INTO usuarios (username, email, passsword, saldo, id_rol) VALUES (?, ?, ?, ?, ?);";
         
-        try {
-            conn = Conexion.getConexion();
-            if (conn != null) {
-                String query = "INSERT INTO usuarios (username, email, password, saldo, id_rol) VALUES (?, ?, ?, ?, ?)";
-                pstmt = conn.prepareStatement(query);
+        try (PreparedStatement pstmt = conexion.prepareStatement(query)) {
+            // Mapeo del Enum a los IDs del catálogo 'rol' (1: ADMINISTRADOR, 2: USUARIO)
+            int idRolDb = (usuario.getRol() == Rol.ADMINISTRADOR) ? 1 : 2;
                 
-                // mapeo del Enum de Java a los IDs numericos de la tabla 'roles' en PostgreSQL
-                // (asumimos 1 para ADMINISTRADOR y 2 para USUARIO)
-                int idRolDb = (usuario.getRol() == Rol.ADMINISTRADOR) ? 1 : 2;
+            pstmt.setString(1, usuario.getUsername());
+            pstmt.setString(2, usuario.getEmail());
+            pstmt.setString(3, usuario.getPasssword());
+            pstmt.setDouble(4, usuario.getSaldo());
+            pstmt.setInt(5, idRolDb);
                 
                 pstmt.setString(1, usuario.getUsername());
                 pstmt.setString(2, usuario.getEmail());
@@ -84,45 +82,27 @@ public class UsuariosDAO {
                 pstmt.setInt(5, idRolDb);
                 
                 pstmt.executeUpdate();
-                exito = true;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (pstmt != null) pstmt.close();
-                if (conn != null) conn.close();
-            } catch (SQLException e) { e.printStackTrace(); }
+                return pstmt.executeUpdate() > 0;
+            } catch (SQLException e) {
+            throw e; // Lanza el error para que Swing avise si el email ya existe
         }
-        return exito;
     }
 
-    // metodo operacional para modificar el monedero virtual (saldo)
-    public boolean actualizarSaldo(int idUsuario, double nuevoSaldo) {
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        boolean exito = false;
+    /**
+     * UPDATE: Modifica el monedero virtual (saldo).
+     * CORREGIDO: Lanza excepción para validar la restricción 'chk_saldo_positivo'.
+     */
+    public boolean actualizarSaldo(int idUsuario, double nuevoSaldo) throws SQLException {
+        String query = "UPDATE usuarios SET saldo = ? WHERE id_usuario = ?;";
         
-        try {
-            conn = Conexion.getConexion();
-            if (conn != null) {
-                String query = "UPDATE usuarios SET saldo = ? WHERE id_usuario = ?";
+        try (PreparedStatement pstmt = conexion.prepareStatement(query)) {
+            pstmt.setDouble(1, nuevoSaldo);
+            pstmt.setInt(2, idUsuario);
                 
-                pstmt = conn.prepareStatement(query);
-                pstmt.setDouble(1, nuevoSaldo);
-                pstmt.setInt(2, idUsuario);
-                
-                pstmt.executeUpdate();
-                exito = true;
-            }
+            return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (pstmt != null) pstmt.close();
-                if (conn != null) conn.close();
-            } catch (SQLException e) { e.printStackTrace(); }
+            // Al arrojar el error, protegemos el CHECK (saldo >= 0) si se intenta retirar más de lo debido
+            throw e;
         }
-        return exito;
     }
 }

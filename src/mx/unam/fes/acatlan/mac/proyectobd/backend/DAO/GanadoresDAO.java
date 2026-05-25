@@ -14,19 +14,19 @@ import java.util.List;
 
 public class GanadoresDAO {
 
-	private final Connection conexion;
+    private final Connection conexion;
 
-    // Constructor que recibe la conexión activa a la base de datos
+    // Constructor que recibe la conexión activa
     public GanadoresDAO(Connection conexion) {
         this.conexion = conexion;
     }
 
     /**
-     * INSERT: Registra un nuevo ganador en el sistema.
-     * Vincula al usuario con la bolsa de donde sale el dinero y el ranking que respaldó su victoria.
+     * INSERT: Registra un nuevo ganador de forma manual si es requerido.
+     * CORRECCIÓN: Se cambió el nombre de la tabla a 'usuarios_ganadores'.
      */
     public boolean registrarGanador(UsuariosGanadores ganador) {
-        String query = "INSERT INTO ganadores (id_bolsa, id_usuario, id_ranking, monto_premio) "
+        String query = "INSERT INTO usuarios_ganadores (id_bolsa, id_usuario, id_ranking, monto_premio) "
                    + "VALUES (?, ?, ?, ?);";
 
         try (PreparedStatement ps = conexion.prepareStatement(query)) {
@@ -44,11 +44,12 @@ public class GanadoresDAO {
 
     /**
      * SELECT: Obtiene la lista histórica de todos los ganadores registrados.
-     * Perfecto para alimentar una pantalla de "Muro de la Fama" o auditoría financiera en Java Swing.
+     * CORRECCIÓN: Apunta a la tabla oficial 'usuarios_ganadores' que llena el sp_cerrar_jornada_oficial.
+     * Perfecto para alimentar tu JTable en Java Swing para el Muro de la Fama.
      */
     public List<UsuariosGanadores> obtenerHistorialGanadores() {
         List<UsuariosGanadores> lista = new ArrayList<>();
-        String query = "SELECT id_ganador, id_bolsa, id_usuario, id_ranking, monto_premio FROM ganadores;";
+        String query = "SELECT id_ganador, id_bolsa, id_usuario, id_ranking, monto_premio FROM usuarios_ganadores;";
 
         try (PreparedStatement ps = conexion.prepareStatement(query);
              ResultSet rs = ps.executeQuery()) {
@@ -82,10 +83,11 @@ public class GanadoresDAO {
     }
 
     /**
-     * UPDATE: Permite modificar el monto de un premio asignado si es necesario.
+     * UPDATE: Permite modificar el monto de un premio asignado si es necesario por auditoría.
+     * CORRECCIÓN: Se actualizó el nombre de la tabla a 'usuarios_ganadores'.
      */
     public boolean actualizarMontoPremio(int idGanador, double nuevoMonto) {
-        String query = "UPDATE ganadores SET monto_premio = ? WHERE id_ganador = ?;";
+        String query = "UPDATE usuarios_ganadores SET monto_premio = ? WHERE id_ganador = ?;";
 
         try (PreparedStatement ps = conexion.prepareStatement(query)) {
             ps.setDouble(1, nuevoMonto);

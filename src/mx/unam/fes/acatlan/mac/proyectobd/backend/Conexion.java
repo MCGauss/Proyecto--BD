@@ -32,4 +32,8 @@ public class Conexion {
         
         return conn; // Regresa el puente (o null si falló algo)
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/branch-marco
 }
