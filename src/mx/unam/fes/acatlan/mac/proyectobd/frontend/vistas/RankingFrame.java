@@ -1,17 +1,16 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package mx.unam.fes.acatlan.mac.proyectobd.frontend.vistas;
 
 import java.awt.*;
 import java.sql.Connection; // INTEGRADO PARA LA CONEXIÓN A POSTGRESQL
+import java.sql.SQLException;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import mx.unam.fes.acatlan.mac.proyectobd.backend.model.*;
-import mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.*;
+import mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.TorneosDAO;
+import mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.RankingsHistoricosDAO;
+//torneo, Rankings historicos, jornadas
 
 public class RankingFrame extends JFrame {
 
@@ -301,7 +300,11 @@ public class RankingFrame extends JFrame {
         btnActualizar.setBackground(
                 new Color(59,130,246)
         );
-
+        
+     // Propiedades de renderizado crítico para macOS
+        btnActualizar.setOpaque(true);
+        btnActualizar.setBorderPainted(false);
+        
         btnActualizar.setForeground(Color.WHITE);
 
         btnActualizar.setFont(
@@ -329,6 +332,9 @@ public class RankingFrame extends JFrame {
         btnVolver.setBackground(
                 new Color(71,85,105)
         );
+        // Propiedades de renderizado crítico para macOS
+        btnVolver.setOpaque(true);
+        btnVolver.setBorderPainted(false);
 
         btnVolver.setForeground(Color.WHITE);
 
