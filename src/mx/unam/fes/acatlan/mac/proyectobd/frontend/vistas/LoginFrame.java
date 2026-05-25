@@ -1,6 +1,7 @@
 package mx.unam.fes.acatlan.mac.proyectobd.frontend.vistas;
 
 import java.awt.*;
+import java.io.File;
 import java.sql.Connection;
 import javax.swing.*;
 
@@ -46,10 +47,22 @@ public class LoginFrame extends JFrame {
         panelIzquierdo.setLayout(null);
 
         lblLogo = new JLabel();
-     // CORREGIDO: Apuntando a la carpeta assets oficial en la raíz de src
-        java.net.URL urlLogo = getClass().getResource("/assets/logo.png");
-        if (urlLogo != null) {
-            lblLogo.setIcon(new ImageIcon(urlLogo));
+        // CORRECCIÓN DE RUTA: Al estar la carpeta 'Assets' fuera de src, 
+        // usamos File para verificar su existencia en la raíz del proyecto.
+        File archivoLogo = new File("Assets/logo.png");
+        if (archivoLogo.exists()) {
+            ImageIcon iconoOriginal = new ImageIcon(archivoLogo.getAbsolutePath());
+            // Escalamos de forma suave (Smooth) para no perder calidad visual
+            Image imagenEscalada = iconoOriginal.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+            lblLogo.setIcon(new ImageIcon(imagenEscalada));
+        } else {
+            // Plan de respaldo escalado (por si lee del Classpath interno)
+            java.net.URL urlLogo = getClass().getResource("/assets/logo.png");
+            if (urlLogo != null) {
+                ImageIcon iconoOriginal = new ImageIcon(urlLogo);
+                Image imagenEscalada = iconoOriginal.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+                lblLogo.setIcon(new ImageIcon(imagenEscalada));
+            }
         }
         lblLogo.setBounds(125, 80, 200, 200);
 
@@ -58,7 +71,7 @@ public class LoginFrame extends JFrame {
         lblSistema.setFont(new Font("Arial", Font.BOLD, 22));
         lblSistema.setBounds(50, 310, 350, 40);
 
-        lblEquipo = new JLabel("FES ACATLÁN - MAC", SwingConstants.CENTER);
+        lblEquipo = new JLabel("THE FOREIGN KEY SQUAD", SwingConstants.CENTER);
         lblEquipo.setForeground(new Color(148,163,184));
         lblEquipo.setFont(new Font("Arial", Font.PLAIN, 14));
         lblEquipo.setBounds(50, 360, 350, 30);
@@ -77,7 +90,7 @@ public class LoginFrame extends JFrame {
         lblTitulo.setFont(new Font("Arial", Font.BOLD, 28));
         lblTitulo.setBounds(100, 60, 250, 40);
 
-        lblUsuario = new JLabel("USUARIO");
+        lblUsuario = new JLabel("CORREO");
         lblUsuario.setForeground(Color.WHITE);
         lblUsuario.setFont(new Font("Arial", Font.PLAIN, 16));
         lblUsuario.setBounds(100, 150, 150, 30);
@@ -97,12 +110,16 @@ public class LoginFrame extends JFrame {
 
         btnLogin = new JButton("INICIAR SESIÓN");
         btnLogin.setBounds(100, 380, 250, 40);
+        btnLogin.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnLogin.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         btnLogin.setBackground(new Color(59,130,246));
         btnLogin.setForeground(Color.WHITE);
         btnLogin.setFont(new Font("Arial", Font.BOLD, 14));
 
         btnRegistro = new JButton("REGISTRARSE");
         btnRegistro.setBounds(100, 440, 250, 40);
+        btnRegistro.setOpaque(true);         // <- Obliga a pintar el fondo en Mac
+        btnRegistro.setBorderPainted(false); // <- Quita el borde Aqua nativo de Mac
         btnRegistro.setBackground(new Color(16,185,129));
         btnRegistro.setForeground(Color.WHITE);
         btnRegistro.setFont(new Font("Arial", Font.BOLD, 14));
@@ -132,9 +149,9 @@ public class LoginFrame extends JFrame {
         // VALIDACIÓN DE LOGEO CON TU BASE DE DATOS
         btnLogin.addActionListener(e -> {
             String user = txtUsuario.getText().trim();
-            String pass = new String(txtPassword.getPassword());
+            String passsword = new String(txtPassword.getPassword());
 
-            if (user.isEmpty() || pass.isEmpty()) {
+            if (user.isEmpty() || passsword.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Campos incompletos.", "Advertencia", JOptionPane.WARNING_MESSAGE);
                 return;
             }
@@ -144,7 +161,7 @@ public class LoginFrame extends JFrame {
                 UsuariosDAO dao = new UsuariosDAO(conexion);
                 
                 // Suponiendo que tu método del backend se llama validarLogin o verificarUsuario
-                Usuarios usuarioLogueado = dao.validarLogin(user, pass);
+                Usuarios usuarioLogueado = dao.validarLogin(user, passsword);
 
                 if (usuarioLogueado != null) {
                     JOptionPane.showMessageDialog(this, "¡Bienvenido, " + usuarioLogueado.getUsername() + "!");
