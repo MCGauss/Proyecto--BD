@@ -15,9 +15,9 @@ public class Conexion {
             
             // 2. Definimos la dirección del servidor local de tu MacBook
             // Nota: El puerto por defecto es 5432. Si tu pgcli usa otro (como 5435), cámbialo aquí.
-            String servidor = "jdbc:postgresql://127.0.0.1:5432/quiniela_db"; 
+            String servidor = "jdbc:postgresql://127.0.0.1:5432/dbLigaMX"; 
             String usuarioDB = "postgres";
-            String passwordDB = "postgres"; // Pon aquí tu contraseña real de Postgres
+            String passwordDB = "Jack09#"; // Pon aquí tu contraseña real de Postgres
             
             // 3. El DriverManager fabrica el puente físico y nos lo regresa
             conn = DriverManager.getConnection(servidor, usuarioDB, passwordDB);
@@ -32,8 +32,4 @@ public class Conexion {
         
         return conn; // Regresa el puente (o null si falló algo)
     }
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/branch-marco
 }

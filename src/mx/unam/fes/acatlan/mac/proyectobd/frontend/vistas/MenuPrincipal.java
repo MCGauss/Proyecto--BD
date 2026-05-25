@@ -141,14 +141,15 @@ public class MenuPrincipal extends JFrame {
         private Image imagenFondo;
 
         public PanelFondoGif() {
-            // Nota de Eclipse: Asegúrate de colocar el archivo en tu carpeta de recursos del proyecto
-            String rutaGif = "/mx/unam/fes/acatlan/mac/proyectobd/frontend/recursos/estadio.gif";
+        	// CORREGIDO: Apuntando directamente a la carpeta assets oficial en la raíz de src
+        	String rutaGif = "/assets/futbol.gif";
             java.net.URL url = getClass().getResource(rutaGif);
             if (url != null) {
                 imagenFondo = new ImageIcon(url).getImage();
             } else {
-                // Alternativa por si el recurso no carga inmediatamente o cambia de ruta en el build path
-                imagenFondo = new ImageIcon("src/mx/unam.fes.acatlan.mac.proyectobd.frontend.recursos/estadio.gif").getImage();
+            	System.out.println("Advertencia: No se encontró el GIF mediante getResource, usando ruta relativa.");
+                // 2. CORREGIDO: Ruta relativa directa del sistema de archivos para el proyecto oficial
+                imagenFondo = new ImageIcon("src/assets/futbol2.gif").getImage();
             }
         }
 
