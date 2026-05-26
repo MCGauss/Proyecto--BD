@@ -20,15 +20,15 @@ public class Conexion {
             
 
             // 2. Definimos la dirección del servidor local de tu MacBook
-            /*
+            
             String servidor = "jdbc:postgresql://127.0.0.1:5432/prueba_proyecto"; 
             String usuarioDB = "postgres";
-            String passwordDB = "331968"; */
+            String passwordDB = "331968"; 
 
             //Opción 2
-            String servidor = "jdbc:postgresql://127.0.0.1:5432/dbLigaMX"; 
-            String usuarioDB = "postgres";
-            String passwordDB = "Jack09#"; 
+            //String servidor = "jdbc:postgresql://127.0.0.1:5432/dbLigaMX"; 
+            //String usuarioDB = "postgres";
+            //String passwordDB = "Jack09#"; 
             
             // 3. El DriverManager fabrica el puente físico usando las variables de arriba
             conn = DriverManager.getConnection(servidor, usuarioDB, passwordDB);

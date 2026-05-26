@@ -58,6 +58,9 @@ public class Torneos {
 	public void setFechaFin(LocalDate fechaFin) {
 		this.fechaFin = fechaFin;
 	}
-	
+	@Override
+	public String toString() {
+	    return this.nombreTorneo; 
+	}
 	
 }

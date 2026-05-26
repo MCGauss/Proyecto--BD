@@ -15,6 +15,7 @@ public class RegistroFrame extends JFrame {
     JTextField txtNombre, txtApPaterno, txtApMaterno, txtUsuario, txtCorreo, txtTelefono;
     JPasswordField txtPassword;
     JButton btnRegistrar, btnVolver;
+    JComboBox<String> comboRol;
 
     private Connection conexion;
 
@@ -148,6 +149,14 @@ public class RegistroFrame extends JFrame {
         txtApMaterno.setCaretColor(Color.WHITE);
         txtApMaterno.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         panel.add(txtApMaterno);
+        
+        /*Añadir seleccion de rol
+        
+        comboRol = new JComboBox<>();
+        comboRol.addItem("ADMINISTRADOR");
+        comboRol.addItem("USUARIO");
+        comboRol.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        comboRol.setPreferredSize(new Dimension(220, 38));  */
 
         // ==========================================
         // BOTÓN: CONFIRMAR REGISTRO (Verde Éxito)

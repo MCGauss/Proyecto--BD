@@ -16,19 +16,12 @@ public class RankingsHistoricosDAO {
 
     private final Connection conexion;
 
-    /**
-     * Constructor que recibe la conexión activa (Arquitectura MCGauss & Diana).
-     */
     public RankingsHistoricosDAO(Connection conexion) {
         this.conexion = conexion;
     }
 
-    /**
-     * INSERT: Guarda un registro de ranking calculado.
-     * @throws SQLException Propaga el error para control transaccional en el Cierre de Jornada.
-     */
     public boolean registrarRanking(RankingsHistoricos ranking) throws SQLException {
-        String query = "INSERT INTO rankings_historicos (id_usuario, id_prediccion, puntos_totales, aciertos, errores)"
+        String query = "INSERT INTO rankings_historicos (id_usuario, id_prediccion, puntos_totales, aciertos, errores) "
                      + "VALUES (?, ?, ?, ?, ?);";
 
         try (PreparedStatement ps = conexion.prepareStatement(query)) {
@@ -39,29 +32,26 @@ public class RankingsHistoricosDAO {
             ps.setInt(5, ranking.getErrores());
 
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw e;
         }
     }
 
     /**
-     * SELECT: Obtiene la tabla de posiciones ordenada de mayor a menor
-     * con un JOIN con la tabla 'usuarios' para traer el 'username' 
-     * y mostrar en un jTable.
+     * SELECT CORREGIDO: Obtiene la tabla de posiciones filtrada por una jornada específica.
+     * Se añadieron los espacios faltantes en las uniones de las cadenas de texto.
      */
     public List<RankingsHistoricos> obtenerRankingPorJornada(int idJornada) {
         List<RankingsHistoricos> lista = new ArrayList<>();
         
-        String query = "SELECT rh.id_ranking, rh.puntos_totales, rh.aciertos, rh.errores, rh.id_usuario, u.username, rh.id_prediccion"
-                     + "FROM rankings_historicos rh"
-                     + "JOIN usuarios u ON rh.id_usuario = u.id_usuario"
+        String query = "SELECT rh.id_ranking, rh.puntos_totales, rh.aciertos, rh.errores, rh.id_usuario, u.username, rh.id_prediccion "
+                     + "FROM rankings_historicos rh "
+                     + "JOIN usuarios u ON rh.id_usuario = u.id_usuario "
                      + "JOIN predicciones p ON rh.id_prediccion = p.id_prediccion "
                      + "JOIN partido pa ON p.id_partido = pa.id_partido "
-                     + "WHERE pa.id_jornada = ?"
-                     + "ORDER BY rh.puntos_totales DESC, rh.aciertos DESC;";             
-                     		
+                     + "WHERE pa.id_jornada = ? "
+                     + "ORDER BY rh.puntos_totales DESC, rh.aciertos DESC;";                    
+                     
         try (PreparedStatement ps = conexion.prepareStatement(query)){
-        	ps.setInt(1, idJornada);
+            ps.setInt(1, idJornada);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -71,13 +61,11 @@ public class RankingsHistoricosDAO {
                     rh.setAciertos(rs.getInt("aciertos"));
                     rh.setErrores(rs.getInt("errores"));
 
-                    // Poblamos el objeto de negocio Usuario incluyendo su nombre en texto para la UI
                     Usuarios u = new Usuarios();
                     u.setIdUsuario(rs.getInt("id_usuario"));
                     u.setUsername(rs.getString("username")); 
                     rh.setUsuario(u);
 
-                    // Armamos el cascarón de Predicciones
                     Predicciones p = new Predicciones();
                     p.setIdPrediccion(rs.getInt("id_prediccion"));
                     rh.setPrediccion(p);
@@ -92,8 +80,45 @@ public class RankingsHistoricosDAO {
     }
 
     /**
-     * UPDATE: Modifica o recalcula los puntajes históricos de una predicción.
+     * REQUERIMIENTO EXTENDIDO: Obtiene la matriz horizontal de puntos por jornada
+     * e incluye la sumatoria total de aciertos y errores del usuario en el torneo.
      */
+    public List<Object[]> obtenerMatrizPuntosPorTorneo(String nombreTorneo) {
+        List<Object[]> resultados = new ArrayList<>();
+        
+        String query = "SELECT u.username, j.nombre_jornada, "
+                     + "SUM(rh.puntos_totales) as puntos_jornada, "
+                     + "SUM(rh.aciertos) as total_aciertos, "
+                     + "SUM(rh.errores) as total_errores "
+                     + "FROM rankings_historicos rh "
+                     + "JOIN usuarios u ON rh.id_usuario = u.id_usuario "
+                     + "JOIN predicciones p ON rh.id_prediccion = p.id_prediccion "
+                     + "JOIN partido pa ON p.id_partido = pa.id_partido "
+                     + "JOIN jornadas j ON pa.id_jornada = j.id_jornada "
+                     + "JOIN torneos t ON j.id_torneo = t.id_torneo "
+                     + "WHERE UPPER(t.nombre_torneo) = ? "
+                     + "GROUP BY u.username, j.nombre_jornada "
+                     + "ORDER BY u.username, j.nombre_jornada;";
+
+        try (PreparedStatement ps = conexion.prepareStatement(query)) {
+            ps.setString(1, nombreTorneo.toUpperCase().trim());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    resultados.add(new Object[]{
+                        rs.getString("username"),
+                        rs.getString("nombre_jornada"),
+                        rs.getInt("puntos_jornada"),
+                        rs.getInt("total_aciertos"),
+                        rs.getInt("total_errores")
+                    });
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al procesar matriz de posiciones extendida: " + e.getMessage());
+        }
+        return resultados;
+    }
+
     public boolean actualizarRanking(RankingsHistoricos ranking) throws SQLException {
         String query = "UPDATE rankings_historicos SET puntos_totales = ?, aciertos = ?, errores = ? "
                      + "WHERE id_ranking = ?;";
@@ -105,24 +130,14 @@ public class RankingsHistoricosDAO {
             ps.setInt(4, ranking.getIdRanking());
 
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw e;
         }
     }
 
-    /**
-     * CALLABLE STATEMENT: 
-     * Este método ejecuta el procedimiento almacenado de SQL.
-     * @param idJornada Identificador único de la jornada a cerrar.
-     * @return true si se procesó de forma correcta el cierre en el motor de la base de datos.
-     * @throws SQLException Se propaga el error para que la ventana de administración en Swing pueda alertar al usuario si falla algo.
-     */
     public boolean procesarCierreDeJornadaOficial(int idJornada) throws SQLException {
         String query = "{CALL sp_cerrar_jornada_oficial(?)}";
 
         try (CallableStatement cstmt = conexion.prepareCall(query)) {
             cstmt.setInt(1, idJornada);
-            
             cstmt.execute();
             return true;
         } catch (SQLException e) {
