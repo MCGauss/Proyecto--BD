@@ -250,8 +250,7 @@ public class InscripcionJornadaFrame extends JFrame {
                 btnAccion.setCursor(new Cursor(Cursor.HAND_CURSOR));
                 
                 btnAccion.addActionListener(e -> {
-                    JOptionPane.showMessageDialog(this, "Abriendo panel de visualización de partidos en curso para la jornada ID: " + idJornada);
-                    // Ejemplo: new PartidosJornadaEstatusFrame(conexion, usuarioSesion, idJornada).setVisible(true);
+                    new VerPartidosFrame(conexion, usuarioSesion, idJornada).setVisible(true);
                     // dispose();
                 });
                 break;
