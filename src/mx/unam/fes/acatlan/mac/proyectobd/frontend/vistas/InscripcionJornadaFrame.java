@@ -231,11 +231,12 @@ public class InscripcionJornadaFrame extends JFrame {
                 lblEstado.setText("DISPONIBLE / ABIERTA");
                 lblEstado.setForeground(new Color(16, 185, 129)); // Esmeralda
                 
-                btnAccion.setText("INSCRIBIRSE");
+                btnAccion.setText("PAGAR");
                 btnAccion.setBackground(new Color(16, 185, 129));
                 btnAccion.setCursor(new Cursor(Cursor.HAND_CURSOR));
                 
                 btnAccion.addActionListener(e -> {
+                	//validar que tienes saldo suficiente y si es así, generar una inscripción (un insert into inscripciones para el usuario que se inscribió)
                     new QuinielaFrame(conexion, usuarioSesion, idJornada).setVisible(true);
                     dispose();
                 });

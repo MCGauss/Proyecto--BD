@@ -156,7 +156,7 @@ public class VerPartidosFrame extends JFrame {
         }
     }
 
-    // =========================================================================
+ // =========================================================================
     // RENDERIZADOR: LOGO PNG ARRIBA Y NOMBRE ABAJO (DENTRO DE LA MISMA CELDA)
     // =========================================================================
     private class EquipoPNGCellRenderer extends JPanel implements TableCellRenderer {
@@ -190,8 +190,11 @@ public class VerPartidosFrame extends JFrame {
             if (value instanceof mx.unam.fes.acatlan.mac.proyectobd.backend.model.Equipos equipo) {
                 lblNombre.setText(equipo.getNombreEquipo());
                 
-                // Carga nativa simplificada de PNG con redimensión suave de 45x45 px
-                ImageIcon iconoPng = cargarImagenPNG(equipo.getLogoURL(), 45, 45);
+                // NOTA IMPORTANTE: Verifica si tu modelo usa getLogoURL() o getLogo(). 
+                // Debe coincidir con lo que extraes en el PartidosDAO usando rs.getString("local_logo")
+                String nombreArchivo = equipo.getLogoURL(); 
+                
+                ImageIcon iconoPng = cargarImagenPNG(nombreArchivo, 45, 45);
                 lblLogo.setIcon(iconoPng);
             } else {
                 lblNombre.setText("");
@@ -204,25 +207,28 @@ public class VerPartidosFrame extends JFrame {
         private ImageIcon cargarImagenPNG(String nombreArchivo, int ancho, int alto) {
             try {
                 if (nombreArchivo != null && !nombreArchivo.trim().isEmpty()) {
-                    // Si la BD aún conserva guardado ".eps" por registros viejos, lo forzamos a ".png" en caliente
+                    // Si el String viene de la BD con extensión .eps, la forzamos a .png
                     if (nombreArchivo.toLowerCase().endsWith(".eps")) {
                         nombreArchivo = nombreArchivo.substring(0, nombreArchivo.length() - 4) + ".png";
                     }
                     
-                    String rutaCompleta = "/Assets/" + nombreArchivo.trim();
+                    // Al usar getResource, busca desde la raíz del classpath del JAR/Build
+                    String rutaCompleta = "/Proyecto--BD/Assets/" + nombreArchivo.trim();
                     URL urlRecurso = getClass().getResource(rutaCompleta);
                     
                     if (urlRecurso != null) {
                         ImageIcon iconoOriginal = new ImageIcon(urlRecurso);
                         Image imgEscalada = iconoOriginal.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
                         return new ImageIcon(imgEscalada);
+                    } else {
+                        System.err.println("No se encontró el archivo físico en el classpath: " + rutaCompleta);
                     }
                 }
             } catch (Exception ex) {
                 System.err.println("Error cargando logo PNG: " + ex.getMessage());
             }
             
-            // Failsafe: Círculo gris neutral si el archivo físico .png faltara en /Assets/
+            // Fallback estético circular si no se encuentra la imagen
             BufferedImage fallback = new BufferedImage(ancho, alto, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g2 = fallback.createGraphics();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
