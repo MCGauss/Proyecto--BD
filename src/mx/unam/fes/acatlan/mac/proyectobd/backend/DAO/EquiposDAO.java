@@ -24,7 +24,7 @@ public class EquiposDAO {
             if (conn != null) {
                 stmt = conn.createStatement();
                 // query 
-                String query = "SELECT id_equipo, nombre_equipo, logo_url, id_liga FROM equipos WHERE id_liga = " + idLiga;
+                String query = "SELECT id_equipo, nombre_equipo, logo, id_liga FROM equipos WHERE id_liga = " + idLiga;
                 rs = stmt.executeQuery(query);
                 
                 while (rs.next()) {
@@ -36,7 +36,7 @@ public class EquiposDAO {
                     Equipos equipo = new Equipos(
                         rs.getInt("id_equipo"),
                         rs.getString("nombre_equipo"),
-                        rs.getString("logo_url"),
+                        rs.getString("logo"),
                         ligaTemporal
                     );
                     

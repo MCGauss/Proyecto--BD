@@ -170,12 +170,13 @@ public class QuinielaFrame extends JFrame {
 
         // Obtención de datos reales validados desde el DAO modificado
         String nombreLocal = (partido.getEquipoLocal() != null) ? partido.getEquipoLocal().getNombreEquipo() : "Equipo Local";
-        String logoLocal = (partido.getEquipoLocal() != null) ? partido.getEquipoLocal().getLogoURL() : "";
+        String logoLocal = partido.getEquipoLocal().getLogoURL();
         
         // Generar icono (con iniciales de respaldo si es .eps o null)
         ImageIcon iconoLocal = obtenerIconoOIniciales(logoLocal, nombreLocal, 65, 65);
 
         JLabel lblLogoLocal = new JLabel(iconoLocal);
+        lblLogoLocal.setIcon(obtenerIconoRedondeado(logoLocal, 65, 65));
         lblLogoLocal.setBounds(40, 27, 65, 65);
         card.add(lblLogoLocal);
 
@@ -219,7 +220,8 @@ public class QuinielaFrame extends JFrame {
 
         // Datos del Equipo Visitante reales del DAO
         String nombreVis = (partido.getEquipoVisitante() != null) ? partido.getEquipoVisitante().getNombreEquipo() : "Equipo Visitante";
-        String logoVis = (partido.getEquipoVisitante() != null) ? partido.getEquipoVisitante().getLogoURL() : "";
+        String logoVis = partido.getEquipoVisitante().getLogoURL();
+        
         
         ImageIcon iconoVis = obtenerIconoOIniciales(logoVis, nombreVis, 65, 65);
 
@@ -230,6 +232,7 @@ public class QuinielaFrame extends JFrame {
         card.add(lblNombreVis);
 
         JLabel lblLogoVis = new JLabel(iconoVis);
+        lblLogoVis.setIcon(obtenerIconoRedondeado(logoVis, 65, 65));
         lblLogoVis.setBounds(1280, 27, 65, 65);
         card.add(lblLogoVis);
 
@@ -339,13 +342,20 @@ public class QuinielaFrame extends JFrame {
     private ImageIcon obtenerIconoRedondeado(String nombreArchivo, int anchoDeseado, int altoDeseado) {
         try {
             if (nombreArchivo != null && !nombreArchivo.trim().isEmpty()) {
-                String rutaCompleta = "/Assets/" + nombreArchivo.trim();
+                // Forzado de extensión por si queda algún rastro en el LDD viejo
+                if (nombreArchivo.toLowerCase().endsWith(".eps")) {
+                    nombreArchivo = nombreArchivo.substring(0, nombreArchivo.length() - 4) + ".png";
+                }
+
+                String rutaCompleta = "/Proyecto--BD/Assets/" + nombreArchivo.trim();
                 URL urlRecurso = getClass().getResource(rutaCompleta);
                 
                 if (urlRecurso != null) {
                     ImageIcon iconoOriginal = new ImageIcon(urlRecurso);
                     Image imgEscalada = iconoOriginal.getImage().getScaledInstance(anchoDeseado, altoDeseado, Image.SCALE_SMOOTH);
                     return new ImageIcon(imgEscalada);
+                } else {
+                    System.err.println("QuinielaFrame: Archivo no encontrado en " + rutaCompleta);
                 }
             }
         } catch (Exception ex) {
