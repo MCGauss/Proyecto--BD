@@ -5,282 +5,343 @@ import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
-import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
-import mx.unam.fes.acatlan.mac.proyectobd.backend.model.*;
-import mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.*;
+import mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.BolsaPremiosDAO;
+import mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.PartidosDAO;
+import mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.PrediccionesDAO;
+import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Partido;
+import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Predicciones;
+import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Usuarios;
 
 public class QuinielaFrame extends JFrame {
 
-    JPanel panelPrincipal;
+    private static final long serialVersionUID = 1L;
 
-    JLabel lblTitulo;
-    JLabel lblSubtitulo;
-    JLabel lblPremio;
+    // Paneles estructurales
+    private JPanel panelPrincipal;
+    private JPanel panelPartidos;
+    private JScrollPane scrollPane;
 
-    JPanel panelPartidos;
+    private JLabel lblTitulo;
+    private JLabel lblSubtitulo;
+    private JLabel lblPremio;
 
-    JButton btnGuardar;
-    JButton btnVolver;
+    private JButton btnGuardar;
+    private JButton btnVolver;
 
-    boolean editable = true;
-
-    // ATRIBUTOS DE CONTROL DE PERSISTENCIA Y SESIÓN
+    // Control de Persistencia y Sesión Global
     private Connection conexion;
     private Usuarios usuarioSesion;
-    private int idJornada; // Control de la jornada seleccionada
+    private int idJornada; 
+    public boolean editable = true;
 
-    // DAOs necesarios para la lógica real
+    // DAOs de la Arquitectura
     private PartidosDAO partidosDAO;
     private BolsaPremiosDAO bolsaPremiosDAO;
+    private PrediccionesDAO prediccionesDAO;
 
-    // CONSTRUCTOR MODIFICADO: Ahora recibe el idJornada desde la ventana anterior
+    // Estructuras de rastreo interno para recolectar marcadores al guardar
+    private List<Partido> partidosCartelera;
+    private List<JSpinner> spinnersGolesLocal;
+    private List<JSpinner> spinnersGolesVis;
+
     public QuinielaFrame(Connection conexion, Usuarios usuarioSesion, int idJornada) {
         this.conexion = conexion;
         this.usuarioSesion = usuarioSesion;
         this.idJornada = idJornada;
-        
-        // Inicializar los DAOs con la conexión compartida
+
+        // Inicialización de DAOs
         this.partidosDAO = new PartidosDAO(conexion);
         this.bolsaPremiosDAO = new BolsaPremiosDAO(conexion);
+        this.prediccionesDAO = new PrediccionesDAO(conexion);
 
-        setTitle("Quiniela Oficial - Foreign Key Squad");
-        setSize(1500, 950);
+        this.spinnersGolesLocal = new ArrayList<>();
+        this.spinnersGolesVis = new ArrayList<>();
+
+        setTitle("Captura de Pronósticos - Quiniela FES Acatlán");
+        setSize(1550, 900); // Dimensiones ajustadas para evitar desbordamientos
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(true);
 
         iniciarComponentes();
-
-        setVisible(true);
     }
 
     private void iniciarComponentes() {
-
         panelPrincipal = new JPanel();
-        panelPrincipal.setLayout(new BorderLayout());
-        panelPrincipal.setBackground(new Color(226, 232, 240));
+        panelPrincipal.setLayout(null);
+        panelPrincipal.setBackground(new Color(241, 245, 249)); // Fondo Slate claro
 
-        JPanel panelSuperior = new JPanel();
-        panelSuperior.setPreferredSize(new Dimension(1500, 120));
-        panelSuperior.setBackground(new Color(15, 23, 42));
-        panelSuperior.setLayout(null);
-
-        // TEXTO DINÁMICO: Cambia según la jornada real de la BD
-        lblTitulo = new JLabel("QUINIELA - JORNADA " + idJornada);
-        lblTitulo.setForeground(Color.WHITE);
-        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 34));
-        lblTitulo.setBounds(40, 20, 500, 40);
-
-        lblSubtitulo = new JLabel("TEMPORADA EN CURSO");
-        lblSubtitulo.setForeground(new Color(148, 163, 184));
-        lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 20));
-        lblSubtitulo.setBounds(45, 65, 250, 25);
-
-        // CONSULTA DE BOLSA DE PREMIOS REAL EN LA BD
+        // ========================================================
+        // 1. OBTENCIÓN DE INFORMACIÓN DINÁMICA DE LA BD
+        // ========================================================
         double montoBolsa = bolsaPremiosDAO.obtenerMontoAcumulado(idJornada);
-        lblPremio = new JLabel("PREMIO ACUMULADO: $" + String.format("%,.2f", montoBolsa));
-        lblPremio.setForeground(new Color(16, 185, 129));
-        lblPremio.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        lblPremio.setBounds(980, 40, 450, 35);
+        String bolsaFormateada = String.format("$%.2f MXN", montoBolsa);
 
-        panelSuperior.add(lblTitulo);
-        panelSuperior.add(lblSubtitulo);
-        panelSuperior.add(lblPremio);
+        lblTitulo = new JLabel("PRONÓSTICOS DE LA JORNADA " + idJornada);
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 36));
+        lblTitulo.setForeground(new Color(15, 23, 42));
+        lblTitulo.setBounds(60, 25, 700, 50);
+        panelPrincipal.add(lblTitulo);
 
-        // PANEL DE PARTIDOS CON UN GRIDLAYOUT FLEXIBLE (0 filas indica renglones infinitos autoadaptables)
+        lblSubtitulo = new JLabel("Ingresa tus predicciones para cada partido. Revisa los horarios antes de guardar.");
+        lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        lblSubtitulo.setForeground(new Color(71, 85, 105));
+        lblSubtitulo.setBounds(60, 80, 700, 25);
+        panelPrincipal.add(lblSubtitulo);
+
+        lblPremio = new JLabel("<html><div style='text-align: right;'><font color='#475569' size='4'>Bolsa Acumulada</font><br><font color='#10B981' size='6'><b>" + bolsaFormateada + "</b></font></div></html>");
+        lblPremio.setBounds(1100, 15, 380, 90);
+        panelPrincipal.add(lblPremio);
+
+        // ========================================================
+        // 2. CONTENEDOR ELÁSTICO DE PARTIDOS CON GRIDBAGLAYOUT
+        // ========================================================
         panelPartidos = new JPanel();
-        panelPartidos.setBackground(new Color(226, 232, 240));
-        panelPartidos.setLayout(new GridLayout(0, 1, 18, 18));
-        panelPartidos.setBorder(BorderFactory.createEmptyBorder(25, 35, 25, 35));
-
-        // CARGA DINÁMICA DE PARTIDOS DESDE POSTGRESQL
-        List<Partido> listaPartidos = partidosDAO.obtenerPartidosPorJornada(idJornada);
+        panelPartidos.setLayout(new GridBagLayout()); // Permite crecimiento dinámico real para el Scroll
+        panelPartidos.setBackground(new Color(241, 245, 249));
         
-        if (listaPartidos == null || listaPartidos.isEmpty()) {
-            JPanel panelVacio = new JPanel();
-            panelVacio.setBackground(Color.WHITE);
-            panelVacio.add(new JLabel("No hay partidos programados para esta jornada aún."));
-            panelPartidos.add(panelVacio);
+        // Carga de partidos programados desde el DAO
+        partidosCartelera = partidosDAO.obtenerPartidosPorJornada(idJornada);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(0, 0, 15, 0); // Espaciado inferior simétrico entre tarjetas
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+
+        if (partidosCartelera == null || partidosCartelera.isEmpty()) {
+            JLabel lblVacio = new JLabel("No hay partidos programados o pendientes por jugar en esta jornada.", SwingConstants.CENTER);
+            lblVacio.setFont(new Font("Segoe UI", Font.ITALIC, 18));
+            lblVacio.setForeground(new Color(100, 116, 139));
+            panelPartidos.add(lblVacio, gbc);
         } else {
-            for (Partido partido : listaPartidos) {
-                panelPartidos.add(crearTarjetaPartido(partido));
+            for (Partido partido : partidosCartelera) {
+                panelPartidos.add(crearCardPartido(partido), gbc);
+                gbc.gridy++;
             }
+            // Agrega un empujador vertical invisible al final para alinear todo perfectamente arriba
+            gbc.weighty = 1.0;
+            panelPartidos.add(Box.createGlue(), gbc);
         }
 
-        JScrollPane scroll = new JScrollPane(panelPartidos);
-        scroll.setBorder(null);
-        scroll.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane = new JScrollPane(panelPartidos);
+        scrollPane.setBounds(60, 130, 1420, 600); // Espacio exacto optimizado
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.getVerticalScrollBar().setUnitIncrement(20);
+        panelPrincipal.add(scrollPane);
 
-        JPanel panelInferior = new JPanel();
-        panelInferior.setPreferredSize(new Dimension(1500, 90));
-        panelInferior.setBackground(new Color(226, 232, 240));
+        // ========================================================
+        // 3. BARRA DE ACCIONES INFERIORES (SIEMPRE VISIBLES)
+        // ========================================================
+        btnVolver = crearBoton("VOLVER", new Color(100, 116, 139));
+        btnVolver.setBounds(60, 760, 250, 50);
+        panelPrincipal.add(btnVolver);
 
-        btnGuardar = crearBoton("GUARDAR PREDICCIONES", new Color(59, 130, 246));
-        btnVolver = crearBoton("VOLVER", new Color(71, 85, 105));
+        btnGuardar = crearBoton("GUARDAR PREDICCIÓN", new Color(16, 185, 129)); 
+        btnGuardar.setBounds(1230, 760, 250, 50);
+        btnGuardar.setEnabled(editable);
+        panelPrincipal.add(btnGuardar);
 
-        panelInferior.add(btnGuardar);
-        panelInferior.add(Box.createHorizontalStrut(25));
-        panelInferior.add(btnVolver);
-
-        panelPrincipal.add(panelSuperior, BorderLayout.NORTH);
-        panelPrincipal.add(scroll, BorderLayout.CENTER);
-        panelPrincipal.add(panelInferior, BorderLayout.SOUTH);
-
-        add(panelPrincipal);
-
-        // EVENTO: GUARDAR PREDICCIONES EN BASE DE DATOS
-        btnGuardar.addActionListener(e -> {
-            // Aquí puedes iterar los Spinners de panelPartidos y usar tu PrediccionesDAO para insertar/actualizar
-            JOptionPane.showMessageDialog(null, "Predicciones sincronizadas con el motor PostgreSQL");
-        });
-
-        // EVENTO: REGRESAR DE FORMA SEGURA
+        // Eventos de Navegación
         btnVolver.addActionListener(e -> {
-            new JornadaHubFrame(conexion, usuarioSesion);
+            new InscripcionJornadaFrame(conexion, usuarioSesion).setVisible(true);
             dispose();
         });
+
+        btnGuardar.addActionListener(e -> ejecutarGuardadoPredicciones());
+
+        add(panelPrincipal);
     }
 
-    // MÉTODO MODIFICADO PARA ACOMODAR EL ESCUDO EN LA PARTE SUPERIOR DEL NOMBRE DEL EQUIPO
-    private JPanel crearTarjetaPartido(Partido partido) {
+ // 1. Modificación dentro de crearCardPartido para asegurar la lectura de nombres
+    private JPanel crearCardPartido(Partido partido) {
         JPanel card = new JPanel();
         card.setLayout(null);
-        card.setPreferredSize(new Dimension(1350, 140)); // Aumentamos la altura a 140 para dar espacio al escudo vertical
         card.setBackground(Color.WHITE);
-        card.setBorder(BorderFactory.createLineBorder(new Color(203, 213, 225), 2));
+        card.setBorder(BorderFactory.createLineBorder(new Color(226, 232, 240), 1));
+        card.setPreferredSize(new Dimension(1380, 120));
+        card.setMinimumSize(new Dimension(1380, 120));
 
-        Equipos local = partido.getEquipoLocal();
-        Equipos visitante = partido.getEquipoVisitante();
+        // Obtención de datos reales validados desde el DAO modificado
+        String nombreLocal = (partido.getEquipoLocal() != null) ? partido.getEquipoLocal().getNombreEquipo() : "Equipo Local";
+        String logoLocal = (partido.getEquipoLocal() != null) ? partido.getEquipoLocal().getLogoURL() : "";
+        
+        // Generar icono (con iniciales de respaldo si es .eps o null)
+        ImageIcon iconoLocal = obtenerIconoOIniciales(logoLocal, nombreLocal, 65, 65);
 
-        // ------------------ CONTENEDOR VERTICAL: EQUIPO LOCAL ------------------
-        JPanel contenedorLocal = new JPanel();
-        contenedorLocal.setLayout(new BoxLayout(contenedorLocal, BoxLayout.Y_AXIS));
-        contenedorLocal.setBackground(Color.WHITE);
-        contenedorLocal.setBounds(30, 15, 230, 110);
+        JLabel lblLogoLocal = new JLabel(iconoLocal);
+        lblLogoLocal.setBounds(40, 27, 65, 65);
+        card.add(lblLogoLocal);
 
-        JLabel lblEscudoLocal = new JLabel();
-        lblEscudoLocal.setAlignmentX(Component.CENTER_ALIGNMENT);
-        lblEscudoLocal.setIcon(cargarIconoEscudo(local.getLogoURL())); // URL remota o ruta local de la BD
+        JLabel lblNombreLocal = new JLabel(nombreLocal);
+        lblNombreLocal.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblNombreLocal.setForeground(new Color(15, 23, 42));
+        lblNombreLocal.setBounds(125, 40, 320, 35);
+        card.add(lblNombreLocal);
 
-        JLabel lblLocalNom = new JLabel(local.getNombreEquipo().toUpperCase());
-        lblLocalNom.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        lblLocalNom.setForeground(new Color(15, 23, 42));
-        lblLocalNom.setAlignmentX(Component.CENTER_ALIGNMENT);
+        // [Aquí se mantienen exactamente iguales tus componentes intermedios: Spinners y el "VS"]
+        SpinnerModel modelLocal = new SpinnerNumberModel(0, 0, 99, 1);
+        JSpinner spinGolesLocal = new JSpinner(modelLocal);
+        spinGolesLocal.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        spinGolesLocal.setBounds(470, 37, 80, 45);
+        spinGolesLocal.setEnabled(editable);
+        JComponent editorL = spinGolesLocal.getEditor();
+        if (editorL instanceof JSpinner.DefaultEditor) {
+            ((JSpinner.DefaultEditor) editorL).getTextField().setHorizontalAlignment(JTextField.CENTER);
+        }
+        card.add(spinGolesLocal);
+        spinnersGolesLocal.add(spinGolesLocal);
 
-        contenedorLocal.add(lblEscudoLocal);
-        contenedorLocal.add(Box.createVerticalStrut(5));
-        contenedorLocal.add(lblLocalNom);
-        // -----------------------------------------------------------------------
-
-        JLabel lblGolesLocal = new JLabel("Goles");
-        lblGolesLocal.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lblGolesLocal.setBounds(290, 30, 80, 20);
-
-        JSpinner spnLocal = new JSpinner(new SpinnerNumberModel(0, 0, 20, 1));
-        spnLocal.setBounds(290, 55, 70, 35);
-        spnLocal.setFont(new Font("Segoe UI", Font.BOLD, 18));
-
-        JLabel lblVs = new JLabel("VS");
-        lblVs.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        lblVs.setForeground(new Color(100, 116, 139));
-        lblVs.setBounds(400, 53, 50, 30);
-
-        JLabel lblGolesVisitante = new JLabel("Goles");
-        lblGolesVisitante.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lblGolesVisitante.setBounds(490, 30, 80, 20);
-
-        JSpinner spnVisitante = new JSpinner(new SpinnerNumberModel(0, 0, 20, 1));
-        spnVisitante.setBounds(490, 55, 70, 35);
-        spnVisitante.setFont(new Font("Segoe UI", Font.BOLD, 18));
-
-        // ----------------- CONTENEDOR VERTICAL: EQUIPO VISITANTE -----------------
-        JPanel contenedorVis = new JPanel();
-        contenedorVis.setLayout(new BoxLayout(contenedorVis, BoxLayout.Y_AXIS));
-        contenedorVis.setBackground(Color.WHITE);
-        contenedorVis.setBounds(590, 15, 230, 110);
-
-        JLabel lblEscudoVis = new JLabel();
-        lblEscudoVis.setAlignmentX(Component.CENTER_ALIGNMENT);
-        lblEscudoVis.setIcon(cargarIconoEscudo(visitante.getLogoURL()));
-
-        JLabel lblVisNom = new JLabel(visitante.getNombreEquipo().toUpperCase());
-        lblVisNom.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        lblVisNom.setForeground(new Color(15, 23, 42));
-        lblVisNom.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        contenedorVis.add(lblEscudoVis);
-        contenedorVis.add(Box.createVerticalStrut(5));
-        contenedorVis.add(lblVisNom);
-        // ------------------------------------------------------------------------
-
-        JLabel lblResultado = new JLabel("Resultado");
-        lblResultado.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        lblResultado.setForeground(new Color(71, 85, 105));
-        lblResultado.setBounds(940, 25, 100, 20);
-
-        JTextField txtResultado = new JTextField();
-        txtResultado.setEditable(false);
-        txtResultado.setHorizontalAlignment(JTextField.CENTER);
-        txtResultado.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        txtResultado.setBounds(910, 55, 180, 35);
-
-        JButton btnCalcular = new JButton("CALCULAR");
-        btnCalcular.setBounds(1130, 53, 140, 40);
-        btnCalcular.setBackground(new Color(59, 130, 246));
-        btnCalcular.setForeground(Color.WHITE);
-        btnCalcular.setFocusPainted(false);
-        btnCalcular.setFont(new Font("Segoe UI", Font.BOLD, 14));
-
-        btnCalcular.addActionListener(e -> {
-            int golesLocal = (int) spnLocal.getValue();
-            int golesVisitante = (int) spnVisitante.getValue();
-
-            if (golesLocal > golesVisitante) {
-                txtResultado.setText("GANA " + local.getNombreEquipo().toUpperCase());
-            } else if (golesVisitante > golesLocal) {
-                txtResultado.setText("GANA " + visitante.getNombreEquipo().toUpperCase());
-            } else {
-                txtResultado.setText("EMPATE");
-            }
-        });
-
-        // Agregamos los sub-paneles y componentes a la tarjeta base
-        card.add(contenedorLocal);
-        card.add(lblGolesLocal);
-        card.add(spnLocal);
+        JLabel lblVs = new JLabel("VS", SwingConstants.CENTER);
+        lblVs.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lblVs.setForeground(new Color(148, 163, 184));
+        lblVs.setBounds(650, 40, 80, 35);
         card.add(lblVs);
-        card.add(lblGolesVisitante);
-        card.add(spnVisitante);
-        card.add(contenedorVis);
-        card.add(lblResultado);
-        card.add(txtResultado);
-        card.add(btnCalcular);
+
+        SpinnerModel modelVis = new SpinnerNumberModel(0, 0, 99, 1);
+        JSpinner spinGolesVis = new JSpinner(modelVis);
+        spinGolesVis.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        spinGolesVis.setBounds(830, 37, 80, 45);
+        spinGolesVis.setEnabled(editable);
+        JComponent editorV = spinGolesVis.getEditor();
+        if (editorV instanceof JSpinner.DefaultEditor) {
+            ((JSpinner.DefaultEditor) editorV).getTextField().setHorizontalAlignment(JTextField.CENTER);
+        }
+        card.add(spinGolesVis);
+        spinnersGolesVis.add(spinGolesVis);
+        // [Fin del bloque de spinners]
+
+        // Datos del Equipo Visitante reales del DAO
+        String nombreVis = (partido.getEquipoVisitante() != null) ? partido.getEquipoVisitante().getNombreEquipo() : "Equipo Visitante";
+        String logoVis = (partido.getEquipoVisitante() != null) ? partido.getEquipoVisitante().getLogoURL() : "";
+        
+        ImageIcon iconoVis = obtenerIconoOIniciales(logoVis, nombreVis, 65, 65);
+
+        JLabel lblNombreVis = new JLabel(nombreVis, SwingConstants.RIGHT);
+        lblNombreVis.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblNombreVis.setForeground(new Color(15, 23, 42));
+        lblNombreVis.setBounds(940, 40, 320, 35);
+        card.add(lblNombreVis);
+
+        JLabel lblLogoVis = new JLabel(iconoVis);
+        lblLogoVis.setBounds(1280, 27, 65, 65);
+        card.add(lblLogoVis);
 
         return card;
     }
 
-    /**
-     * Helper Method: Descarga/Lee la imagen del escudo basándose en la URL de la base de datos 
-     * y le aplica un filtro Smooth Rescaling para no romper el aspecto visual de la App.
-     */
-    private ImageIcon cargarIconoEscudo(String rutaUrl) {
-        int anchoDeseado = 55;
-        int altoDeseado = 55;
+    // 2. Nuevo método inteligente de renderizado que procesa fallbacks y crea iniciales elegantes
+    private ImageIcon obtenerIconoOIniciales(String nombreArchivo, String nombreEquipo, int ancho, int alto) {
         try {
-            if (rutaUrl != null && (rutaUrl.startsWith("http://") || rutaUrl.startsWith("https://"))) {
-                // Opción A: Es una URL de Internet (ej. almacenamiento en la nube o links públicos)
-                URL url = new URL(rutaUrl);
-                BufferedImage img = ImageIO.read(url);
-                if (img != null) {
-                    Image imgEscalada = img.getScaledInstance(anchoDeseado, altoDeseado, Image.SCALE_SMOOTH);
+            // Intentar cargar si no es un vector .eps y la ruta existe
+            if (nombreArchivo != null && !nombreArchivo.trim().isEmpty() && !nombreArchivo.toLowerCase().endsWith(".eps")) {
+                String rutaCompleta = "/Assets/" + nombreArchivo.trim();
+                URL urlRecurso = getClass().getResource(rutaCompleta);
+                if (urlRecurso != null) {
+                    ImageIcon iconoOriginal = new ImageIcon(urlRecurso);
+                    Image imgEscalada = iconoOriginal.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
                     return new ImageIcon(imgEscalada);
                 }
-            } else if (rutaUrl != null && !rutaUrl.trim().isEmpty()) {
-                // Opción B: Ruta de recursos locales dentro de tu propio .jar (src/main/resources...)
-                URL urlRecurso = getClass().getResource(rutaUrl);
+            }
+        } catch (Exception ex) {
+            // Fallback silencioso
+        }
+
+        /*
+         *  UTILERÍA VISUAL: Generar un escudo circular plano con las iniciales si el archivo es .eps o no existe
+         */
+        BufferedImage fallback = new BufferedImage(ancho, alto, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = fallback.createGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        
+        // Color de fondo tipo Slate/Indigo universitario muy estético
+        g2.setColor(new Color(30, 41, 59));
+        g2.fillOval(0, 0, ancho, alto);
+        
+        // Obtener las iniciales del nombre del equipo (Ej: "Pumas UNAM" -> "PU", "América" -> "AM")
+        String iniciales = "";
+        if (nombreEquipo != null && !nombreEquipo.trim().isEmpty()) {
+            String[] partes = nombreEquipo.trim().split(" ");
+            if (partes.length > 0 && partes[0].length() > 0) iniciales += partes[0].charAt(0);
+            if (partes.length > 1 && partes[1].length() > 0) {
+                iniciales += partes[1].charAt(0);
+            } else if (partes[0].length() > 1) {
+                iniciales += partes[0].charAt(1); // Segunda letra de la palabra si es una sola
+            }
+        } else {
+            iniciales = "EQ";
+        }
+        iniciales = iniciales.toUpperCase();
+
+        // Dibujar texto centrado en el círculo
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        FontMetrics fm = g2.getFontMetrics();
+        int x = (ancho - fm.stringWidth(iniciales)) / 2;
+        int y = ((alto - fm.getHeight()) / 2) + fm.getAscent();
+        g2.drawString(iniciales, x, y);
+        
+        g2.dispose();
+        return new ImageIcon(fallback);
+    }
+
+    private void ejecutarGuardadoPredicciones() {
+        if (partidosCartelera == null || partidosCartelera.isEmpty()) return;
+
+        double costoQuiniela = 50.00; 
+        if (usuarioSesion.getSaldo() < costoQuiniela) {
+            JOptionPane.showMessageDialog(this, 
+                "<html><b>Transacción Rechazada:</b><br>No cuentas con saldo suficiente.<br>Costo: $50.00 | Tu Saldo: $" + String.format("%.2f", usuarioSesion.getSaldo()) + "</html>",
+                "Fondos Insuficientes", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int confirmacion = JOptionPane.showConfirmDialog(this, "¿Confirmas que deseas registrar tus pronósticos?", "Confirmar Pronósticos", JOptionPane.YES_NO_OPTION);
+        if (confirmacion != JOptionPane.YES_OPTION) return;
+
+        try {
+            conexion.setAutoCommit(false);
+
+            for (int i = 0; i < partidosCartelera.size(); i++) {
+                Partido partido = partidosCartelera.get(i);
+                int golesLocal = (int) spinnersGolesLocal.get(i).getValue();
+                int golesVis = (int) spinnersGolesVis.get(i).getValue();
+
+                Predicciones pred = new Predicciones();
+                pred.setUsuario(usuarioSesion);
+                pred.setPartido(partido);
+                pred.setPredGolesLocal(golesLocal);
+                pred.setPredGolesVis(golesVis);
+                pred.setPuntosObtenidos(null);
+
+                prediccionesDAO.guardarActualizarPred(pred);
+            }
+
+            conexion.commit();
+            JOptionPane.showMessageDialog(this, "¡Tus pronósticos han sido registrados de forma exitosa!", "Operación Exitosa", JOptionPane.INFORMATION_MESSAGE);
+            new InscripcionJornadaFrame(conexion, usuarioSesion).setVisible(true);
+            this.dispose();
+
+        } catch (SQLException ex) {
+            try { conexion.rollback(); } catch (SQLException rEx) { rEx.printStackTrace(); }
+            JOptionPane.showMessageDialog(this, "<html><b>Error (PostgreSQL):</b><br>" + ex.getMessage() + "</html>", "Violación de Regla de Negocio", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            try { conexion.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
+        }
+    }
+
+    private ImageIcon obtenerIconoRedondeado(String nombreArchivo, int anchoDeseado, int altoDeseado) {
+        try {
+            if (nombreArchivo != null && !nombreArchivo.trim().isEmpty()) {
+                String rutaCompleta = "/Assets/" + nombreArchivo.trim();
+                URL urlRecurso = getClass().getResource(rutaCompleta);
+                
                 if (urlRecurso != null) {
                     ImageIcon iconoOriginal = new ImageIcon(urlRecurso);
                     Image imgEscalada = iconoOriginal.getImage().getScaledInstance(anchoDeseado, altoDeseado, Image.SCALE_SMOOTH);
@@ -288,12 +349,13 @@ public class QuinielaFrame extends JFrame {
                 }
             }
         } catch (Exception ex) {
-            System.err.println("Aviso: No se pudo renderizar el escudo desde: " + rutaUrl + " (Se usará el fallback por defecto).");
+            // Failsafe silencioso
         }
-        
-        // Opción Fallback: Si no hay imagen o falla la red, genera una silueta gris para no quebrar la vista
+
+        // Círculo plano de Fallback estético (Gris elegante) por si no encuentra la imagen física
         BufferedImage fallback = new BufferedImage(anchoDeseado, altoDeseado, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = fallback.createGraphics();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(new Color(203, 213, 225));
         g2.fillOval(0, 0, anchoDeseado, altoDeseado);
         g2.dispose();
@@ -302,7 +364,6 @@ public class QuinielaFrame extends JFrame {
 
     private JButton crearBoton(String texto, Color color) {
         JButton boton = new JButton(texto);
-        boton.setPreferredSize(new Dimension(250, 45));
         boton.setBackground(color);
         boton.setForeground(Color.WHITE);
         boton.setFont(new Font("Segoe UI", Font.BOLD, 15));
