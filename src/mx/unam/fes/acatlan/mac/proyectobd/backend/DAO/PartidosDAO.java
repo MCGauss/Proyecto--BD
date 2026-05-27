@@ -122,4 +122,45 @@ public class PartidosDAO {
             throw e;
         }
     }
+    
+    /**
+     * SELECT: Trae la cartelera completa de partidos de TODOS los campos 
+     * asociados al torneo activo (id_torneo).
+     */
+    public List<Partido> obtenerPartidosPorTorneo(int idTorneo) {
+        List<Partido> lista = new ArrayList<>();
+        String query = 
+            "SELECT p.id_partido, p.id_jornada, p.id_eq_local, p.id_eq_vis, " +
+            "       p.goles_eq_local, p.goles_eq_vis, p.fecha_hora_prog, p.id_status_partido, " +
+            "       el.nombre_equipo AS local_nombre, ev.nombre_equipo AS vis_nombre " +
+            "FROM partido p " +
+            "INNER JOIN jornadas j ON p.id_jornada = j.id_jornada " +
+            "INNER JOIN equipos el ON p.id_eq_local = el.id_equipo " +
+            "INNER JOIN equipos ev ON p.id_eq_vis = ev.id_equipo " +
+            "WHERE j.id_torneo = ? " +
+            "ORDER BY j.id_jornada ASC, p.fecha_hora_prog ASC;";
+
+        try (PreparedStatement pstmt = conexion.prepareStatement(query)) {
+            pstmt.setInt(1, idTorneo);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Partido partido = new Partido();
+                    partido.setIdPartido(rs.getInt("id_partido"));
+                    partido.setGolesLocal(rs.getInt("goles_eq_local"));
+                    partido.setGolesVisitante(rs.getInt("goles_eq_vis"));
+                    
+                    // Mapeo de equipos de manera local para las etiquetas
+                    Equipos local = new Equipos(rs.getInt("id_eq_local"), rs.getString("local_nombre"), null, null);
+                    Equipos visitante = new Equipos(rs.getInt("id_eq_vis"), rs.getString("vis_nombre"), null, null);
+                    partido.setEquipoLocal(local);
+                    partido.setEquipoVisitante(visitante);
+                    
+                    lista.add(partido);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al listar partidos del torneo: " + e.getMessage());
+        }
+        return lista;
+    }
 }
