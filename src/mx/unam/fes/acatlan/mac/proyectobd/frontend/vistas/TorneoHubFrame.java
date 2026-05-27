@@ -2,13 +2,15 @@ package mx.unam.fes.acatlan.mac.proyectobd.frontend.vistas;
 
 import java.awt.*;
 import java.sql.Connection;
+import java.util.Map;
 import javax.swing.*;
 
-import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Jornadas;
-import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Torneos;
+import mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.TorneosDAO;
 import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Usuarios;
 
 public class TorneoHubFrame extends JFrame {
+
+    private static final long serialVersionUID = 1L;
 
     JPanel panelPrincipal;
     JLabel lblTitulo;
@@ -17,156 +19,144 @@ public class TorneoHubFrame extends JFrame {
     JButton btnRanking;
     JButton btnVolver;
 
-    // ATRIBUTOS DE CONEXIÓN Y SESIÓN
+    // ATRIBUTOS DE CONEXIÓN Y SESIÓN ACTIVA
     private Connection conexion;
     private Usuarios usuarioSesion;
-    private int torneo;
-    private Jornadas jornada;
+    private int idTorneoActivo = -1;
 
-    // CONSTRUCTOR MODIFICADO: Ahora recibe obligatoriamente la conexión y el usuario activo
+    // CONSTRUCTOR MODIFICADO: Recibe la conexión y la sesión del usuario
     public TorneoHubFrame(Connection conexion, Usuarios usuarioSesion) {
         this.conexion = conexion;
         this.usuarioSesion = usuarioSesion;
 
         setTitle("Torneo Completo");
-        setSize(1400, 900);
+        setSize(1000, 750); // Ajustado al estándar de tus ventanas anteriores
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(true);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         iniciarComponentes();
-        configurarEventosBD(); // Lógica de botones centralizada
-
-        setVisible(true);
+        configurarEventosBD();
     }
 
     private void iniciarComponentes() {
-
         panelPrincipal = new JPanel();
         panelPrincipal.setLayout(null);
-        panelPrincipal.setBackground(new Color(226, 232, 240));
+        panelPrincipal.setBackground(new Color(241, 245, 249));
 
-        // =========================
-        // TITULO
-        // =========================
         lblTitulo = new JLabel("TORNEO COMPLETO");
-        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 42));
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 32));
         lblTitulo.setForeground(new Color(15, 23, 42));
-        lblTitulo.setBounds(430, 50, 600, 50);
+        lblTitulo.setBounds(60, 40, 500, 45);
+        panelPrincipal.add(lblTitulo);
 
-        // =========================
-        // CARD CENTRAL
-        // =========================
+        // ========================================================
+        // CONSULTA DINÁMICA A LA BASE DE DATOS MEDIANTE EL DAO
+        // ========================================================
+        TorneosDAO torneosDAO = new TorneosDAO(conexion);
+        Map<String, String> datosTorneo = torneosDAO.obtenerInformacionTorneoHub();
+
+        // Valores por defecto si la base de datos se encuentra vacía
+        String nombreTorneo = "SIN TORNEO ACTIVO";
+        String stringJornadaInfo = "Jornada actual: 0 de 0";
+
+        if (datosTorneo != null && !datosTorneo.isEmpty()) {
+            nombreTorneo = datosTorneo.get("nombre_torneo");
+            idTorneoActivo = Integer.parseInt(datosTorneo.get("id_torneo"));
+            stringJornadaInfo = "Jornada actual: " + datosTorneo.get("jornada_actual") + " de " + datosTorneo.get("total_jornadas");
+        }
+
+        // ========================================================
+        // PANEL CARD (MANTENIENDO TU DISEÑO E INYECTANDO LA BD)
+        // ========================================================
         cardPanel = new JPanel();
         cardPanel.setLayout(null);
         cardPanel.setBackground(Color.WHITE);
-        cardPanel.setBorder(BorderFactory.createLineBorder(new Color(16, 185, 129), 2));
-        cardPanel.setBounds(280, 160, 800, 480);
+        cardPanel.setBorder(BorderFactory.createLineBorder(new Color(203, 213, 225), 1));
+        cardPanel.setBounds(60, 120, 860, 360);
 
-        // =========================
-        // TITULO CARD
-        // =========================
-        JLabel lblTorneo = new JLabel("APERTURA 2026");
-        lblTorneo.setFont(new Font("Segoe UI", Font.BOLD, 40));
+        // TITULO CARD (DINÁMICO)
+        JLabel lblTorneo = new JLabel(nombreTorneo);
+        lblTorneo.setFont(new Font("Segoe UI", Font.BOLD, 36)); // Ligeramente ajustado para nombres largos
         lblTorneo.setForeground(new Color(16, 185, 129));
-        lblTorneo.setBounds(220, 40, 400, 50);
-
-        // =========================
-        // JORNADA ACTUAL
-        // =========================
-        JLabel lblJornada = new JLabel("Jornada actual: 5 de 17");
-        lblJornada.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        lblJornada.setForeground(new Color(15, 23, 42));
-        lblJornada.setBounds(240, 120, 350, 40);
-
-        // =========================
-        // DESCRIPCION
-        // =========================
-        JTextArea descripcion = new JTextArea();
-        descripcion.setText("• Participa en el torneo completo.\n\n"
-                          + "• Compite durante las 17 jornadas.\n\n"
-                          + "• Acumula puntos y escala posiciones.\n\n"
-                          + "• Si el torneo inicia ya no podrás modificar tus predicciones.");
-        descripcion.setEditable(false);
-        descripcion.setFocusable(false);
-        descripcion.setOpaque(false);
-        descripcion.setLineWrap(true);
-        descripcion.setWrapStyleWord(true);
-        descripcion.setFont(new Font("Segoe UI", Font.PLAIN, 24));
-        descripcion.setForeground(new Color(71, 85, 105));
-        descripcion.setBounds(120, 200, 580, 160);
-
-        // =========================
-        // BOTONES
-        // =========================
-        btnEntrar = new JButton("ENTRAR AL TORNEO");
-        btnEntrar.setBounds(120, 380, 250, 55);
-        btnEntrar.setBackground(new Color(16, 185, 129));
-        btnEntrar.setForeground(Color.WHITE);
-        btnEntrar.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        btnEntrar.setFocusPainted(false);
-        btnEntrar.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // =========================
-        btnRanking = new JButton("VER RANKING");
-        btnRanking.setBounds(430, 380, 250, 55);
-        btnRanking.setBackground(new Color(59, 130, 246));
-        btnRanking.setForeground(Color.WHITE);
-        btnRanking.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        btnRanking.setFocusPainted(false);
-        btnRanking.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // =========================
-        // BOTON VOLVER
-        // =========================
-        btnVolver = new JButton("VOLVER");
-        btnVolver.setBounds(560, 700, 250, 55);
-        btnVolver.setBackground(new Color(71, 85, 105));
-        btnVolver.setForeground(Color.WHITE);
-        btnVolver.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        btnVolver.setFocusPainted(false);
-        btnVolver.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        // =========================
-        // AGREGAR A CARD
-        // =========================
+        lblTorneo.setBounds(30, 40, 800, 50);
         cardPanel.add(lblTorneo);
+
+        // JORNADA ACTUAL (DINÁMICO)
+        JLabel lblJornada = new JLabel(stringJornadaInfo);
+        lblJornada.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        lblJornada.setForeground(new Color(15, 23, 42));
+        lblJornada.setBounds(60, 110, 800, 40);
         cardPanel.add(lblJornada);
+
+        // DESCRIPCIÓN FIJA
+        JTextArea descripcion = new JTextArea(
+                "Inscríbete para participar a lo largo de todo el torneo.\n" +
+                "Pronostica todos los partidos y acumula puntos en la tabla general.\n" +
+                "¡El jugador con más puntos al final se lleva la bolsa acumulada!"
+        );
+        descripcion.setEditable(false);
+        descripcion.setOpaque(false);
+        descripcion.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        descripcion.setForeground(new Color(71, 85, 105));
+     // Forzamos el centrado de líneas en el JTextArea
+        descripcion.setAlignmentX(Component.CENTER_ALIGNMENT); 
+        // Un truco manual efectivo para centrar texto multilinea plano en Swing:
+        descripcion.setBounds(140, 180, 580, 80); // Reducimos el ancho a 580 y lo movemos a X=140
         cardPanel.add(descripcion);
+
+     // BOTONES INTERNOS DE LA CARD CENTRADOS EN CONJUNTO
+        btnEntrar = crearBoton("PRONOSTICAR", new Color(16, 185, 129));
+        btnEntrar.setBounds(210, 280, 200, 45); // Se posiciona en la mitad izquierda del bloque central
         cardPanel.add(btnEntrar);
+
+        btnRanking = crearBoton("VER RANKING", new Color(15, 23, 42));
+        btnRanking.setBounds(450, 280, 200, 45); // Se posiciona en la mitad derecha del bloque central
         cardPanel.add(btnRanking);
 
-        // =========================
-        // AGREGAR A FRAME
-        // =========================
-        panelPrincipal.add(lblTitulo);
         panelPrincipal.add(cardPanel);
+
+        // BOTÓN VOLVER GENERAL
+        btnVolver = crearBoton("VOLVER", new Color(71, 85, 105));
+        btnVolver.setBounds(380, 530, 220, 50);
         panelPrincipal.add(btnVolver);
+
+        // Si no se encontró ningún torneo, deshabilitamos las acciones de juego
+        if (idTorneoActivo == -1) {
+            btnEntrar.setEnabled(false);
+            btnRanking.setEnabled(false);
+        }
 
         add(panelPrincipal);
     }
 
-    /**
-     * Centraliza la navegación del Frontend pasando la sesión activa y la conexión a PostgreSQL.
-     */
     private void configurarEventosBD() {
-        
-        // Al entrar a las predicciones del torneo, le heredamos la sesión
+        // Al entrar a las predicciones del torneo, heredamos la sesión e información de conexión
         btnEntrar.addActionListener(e -> {
-            new TorneoPrediccionesFrame(conexion, usuarioSesion);
+            // Aquí puedes instanciar tu Frame de predicciones grupales del torneo
+        	new TorneoPrediccionesFrame(conexion, usuarioSesion).setVisible(true);
             dispose();
         });
 
-        // Si tienes una vista de ranking conectada a la BD
         btnRanking.addActionListener(e -> {
-            new RankingFrame(conexion, usuarioSesion);
+            // Abre tu pantalla de Ranking global
+        	new RankingFrame(conexion, usuarioSesion).setVisible(true);
             dispose();
         });
 
-        // Al volver, regresamos al frame de Selección de Quinielas manteniendo el estado
+        // Al volver, regresamos al frame de Selección de Quinielas manteniendo el estado intacto
         btnVolver.addActionListener(e -> {
-            new SeleccionQuinielaFrame(conexion, usuarioSesion);
+            new SeleccionQuinielaFrame(conexion, usuarioSesion).setVisible(true);
             dispose();
         });
+    }
+
+    private JButton crearBoton(String texto, Color color) {
+        JButton boton = new JButton(texto);
+        boton.setBackground(color);
+        boton.setForeground(Color.WHITE);
+        boton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        boton.setFocusPainted(false);
+        boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return boton;
     }
 }

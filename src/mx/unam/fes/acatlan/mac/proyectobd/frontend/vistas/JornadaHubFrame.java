@@ -125,7 +125,8 @@ public class JornadaHubFrame extends JFrame {
         // ========================================================
         btnVerActual.addActionListener(e -> {
             // Se puede abrir QuinielaFrame pasando el ID obtenido en modo lectura
-            JOptionPane.showMessageDialog(this, "Abriendo consulta de la " + textoActualFinal);
+        	new QuinielaFrame(conexion, usuarioSesion, idJornadaActual).setVisible(true);
+            dispose();
         });
 
         btnInscribirse.addActionListener(e -> {

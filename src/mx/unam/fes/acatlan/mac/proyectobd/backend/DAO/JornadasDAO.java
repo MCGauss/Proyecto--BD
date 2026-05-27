@@ -110,4 +110,62 @@ public class JornadasDAO {
         }
         return datos;
     }
+    
+    /**
+     * SELECT: Recupera las jornadas de un torneo calculando analíticamente su estatus
+     * según el estado de sus partidos:
+     * - Si todos son 1 (Programados) -> "DISPONIBLE"
+     * - Si hay alguno en 2 (En curso) o combinación mixta -> "EN CURSO"
+     * - Si todos son 3 (Finalizados) -> "FINALIZADA"
+     * - Si no tiene partidos asignados -> "SIN PARTIDOS"
+     */
+    public List<java.util.Map<String, String>> obtenerJornadasConEstatusCalculado(int idTorneo) {
+        List<java.util.Map<String, String>> lista = new java.util.ArrayList<>();
+        String query = 
+            "SELECT j.id_jornada, j.nombre_jornada, " +
+            "       COUNT(p.id_partido) as total_partidos, " +
+            "       COUNT(CASE WHEN p.id_status_partido = 1 THEN 1 END) as partidos_programados, " +
+            "       COUNT(CASE WHEN p.id_status_partido = 2 THEN 1 END) as partidos_en_curso, " +
+            "       COUNT(CASE WHEN p.id_status_partido = 3 THEN 1 END) as partidos_finalizados " +
+            "FROM jornadas j " +
+            "LEFT JOIN partido p ON j.id_jornada = p.id_jornada " +
+            "WHERE j.id_torneo = ? " +
+            "GROUP BY j.id_jornada, j.nombre_jornada " +
+            "ORDER BY j.id_jornada ASC;";
+
+        try (PreparedStatement ps = conexion.prepareStatement(query)) {
+            ps.setInt(1, idTorneo);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    java.util.Map<String, String> datos = new java.util.HashMap<>();
+                    datos.put("id_jornada", String.valueOf(rs.getInt("id_jornada")));
+                    datos.put("nombre_jornada", rs.getString("nombre_jornada"));
+                    
+                    int total = rs.getInt("total_partidos");
+                    int prog = rs.getInt("partidos_programados");
+                    int curso = rs.getInt("partidos_en_curso");
+                    int fin = rs.getInt("partidos_finalizados");
+                    
+                    String estatus = "DISPONIBLE"; // Por defecto
+                    
+                    if (total == 0) {
+                        estatus = "SIN PARTIDOS";
+                    } else if (prog == total) {
+                        estatus = "DISPONIBLE";
+                    } else if (fin == total) {
+                        estatus = "FINALIZADA";
+                    } else if (curso > 0 || (prog > 0 && fin > 0)) {
+                        // Si hay al menos uno en curso, o combinaciones intermedias
+                        estatus = "EN CURSO";
+                    }
+                    
+                    datos.put("estatus", estatus);
+                    lista.add(datos);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al calcular estatus de jornadas: " + e.getMessage());
+        }
+        return lista;
+    }
 }
