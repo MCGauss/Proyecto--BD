@@ -112,10 +112,14 @@ public class RecargaSaldoFrame extends JFrame {
 
         // Botón de acción Recargar
         btnRecargar = crearBoton("PROCESAR RECARGA", new Color(34, 197, 94), 80, 470);
+        btnRecargar.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnRecargar.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         panelPrincipal.add(btnRecargar);
 
         // Botón Volver
         btnVolver = crearBoton("CANCELAR / VOLVER", new Color(239, 68, 68), 370, 470);
+        btnVolver.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnVolver.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         panelPrincipal.add(btnVolver);
 
         add(panelPrincipal);

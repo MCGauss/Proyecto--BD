@@ -203,6 +203,8 @@ public class MiCuentaFrame extends JFrame {
                 180,
                 570
         );
+        btnRecargar.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnRecargar.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
 
         btnInscribirse = crearBoton(
                 "INSCRIBIRSE",
@@ -210,6 +212,8 @@ public class MiCuentaFrame extends JFrame {
                 490,
                 570
         );
+        btnInscribirse.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnInscribirse.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
 
         btnVolver = crearBoton(
                 "VOLVER",
@@ -217,6 +221,8 @@ public class MiCuentaFrame extends JFrame {
                 800,
                 570
         );
+        btnVolver.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnVolver.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
 
         // =========================
         // AGREGAR COMPONENTES
