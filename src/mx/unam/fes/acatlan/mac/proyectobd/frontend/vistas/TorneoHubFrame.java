@@ -3,6 +3,9 @@ package mx.unam.fes.acatlan.mac.proyectobd.frontend.vistas;
 import java.awt.*;
 import java.sql.Connection;
 import javax.swing.*;
+
+import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Jornadas;
+import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Torneos;
 import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Usuarios;
 
 public class TorneoHubFrame extends JFrame {
@@ -17,6 +20,8 @@ public class TorneoHubFrame extends JFrame {
     // ATRIBUTOS DE CONEXIÓN Y SESIÓN
     private Connection conexion;
     private Usuarios usuarioSesion;
+    private int torneo;
+    private Jornadas jornada;
 
     // CONSTRUCTOR MODIFICADO: Ahora recibe obligatoriamente la conexión y el usuario activo
     public TorneoHubFrame(Connection conexion, Usuarios usuarioSesion) {

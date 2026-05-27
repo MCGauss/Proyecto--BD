@@ -1,16 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package mx.unam.fes.acatlan.mac.proyectobd.frontend.vistas;
 
 import java.awt.*;
 import java.sql.Connection; // INTEGRADO PARA LA CONEXIÓN A POSTGRESQL
-import java.sql.SQLException;
 import javax.swing.*;
-import java.util.List;
-import mx.unam.fes.acatlan.mac.proyectobd.backend.model.*; // IMPORTA TU MODELO
-import mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.*;
+import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Usuarios; // IMPORTA TU MODELO
 
 public class JornadaHubFrame extends JFrame {
 
@@ -30,21 +23,25 @@ public class JornadaHubFrame extends JFrame {
     // ATRIBUTOS DE PERSISTENCIA INYECTADOS
     private Connection conexion;
     private Usuarios usuarioSesion;
-    private JornadasDAO jornadasDAO;
-    private BolsaPremiosDAO bolsaDAO;
+    int jornada;
 
     // CONSTRUCTOR MODIFICADO PARA RECIBIR Y MANTENER LA SESIÓN ACTIVA
     public JornadaHubFrame(Connection conexion, Usuarios usuarioSesion) {
         this.conexion = conexion;
         this.usuarioSesion = usuarioSesion;
-        
 
         setTitle("Quiniela por Jornada");
+
         setSize(1400, 850);
+
         setLocationRelativeTo(null);
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         setResizable(true);
+
         iniciarComponentes();
+
         setVisible(true);
     }
 
@@ -150,7 +147,7 @@ public class JornadaHubFrame extends JFrame {
         // =========================================================
 
         btnVerActual.addActionListener(e -> {
-            new QuinielaFrame(conexion, usuarioSesion).setVisible(true);
+            new QuinielaFrame(conexion, usuarioSesion, jornada).setVisible(true);
             dispose();
         });
 
