@@ -107,10 +107,14 @@ public class TorneoHubFrame extends JFrame {
      // BOTONES INTERNOS DE LA CARD CENTRADOS EN CONJUNTO
         btnEntrar = crearBoton("PRONOSTICAR", new Color(16, 185, 129));
         btnEntrar.setBounds(210, 280, 200, 45); // Se posiciona en la mitad izquierda del bloque central
+        btnEntrar.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnEntrar.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         cardPanel.add(btnEntrar);
 
         btnRanking = crearBoton("VER RANKING", new Color(15, 23, 42));
         btnRanking.setBounds(450, 280, 200, 45); // Se posiciona en la mitad derecha del bloque central
+        btnRanking.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnRanking.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         cardPanel.add(btnRanking);
 
         panelPrincipal.add(cardPanel);
@@ -118,6 +122,8 @@ public class TorneoHubFrame extends JFrame {
         // BOTÓN VOLVER GENERAL
         btnVolver = crearBoton("VOLVER", new Color(71, 85, 105));
         btnVolver.setBounds(380, 530, 220, 50);
+        btnVolver.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnVolver.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         panelPrincipal.add(btnVolver);
 
         // Si no se encontró ningún torneo, deshabilitamos las acciones de juego

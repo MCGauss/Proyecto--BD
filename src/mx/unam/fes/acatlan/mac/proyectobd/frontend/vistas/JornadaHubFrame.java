@@ -104,14 +104,20 @@ public class JornadaHubFrame extends JFrame {
         // ========================================================
         btnVerActual = crearBoton("CONSULTAR", new Color(15, 23, 42));
         btnVerActual.setBounds(155, 490, 220, 50);
+        btnVerActual.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnVerActual.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         panelPrincipal.add(btnVerActual);
 
         btnInscribirse = crearBoton("INSCRIBIRSE", new Color(16, 185, 129));
         btnInscribirse.setBounds(605, 490, 220, 50);
+        btnInscribirse.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnInscribirse.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         panelPrincipal.add(btnInscribirse);
 
         btnVolver = crearBoton("VOLVER", new Color(71, 85, 105));
         btnVolver.setBounds(360, 620, 220, 50);
+        btnVolver.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnVolver.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         panelPrincipal.add(btnVolver);
 
         // Si no se encontró jornada activa o próxima, deshabilitamos la acción del botón correspondiente
