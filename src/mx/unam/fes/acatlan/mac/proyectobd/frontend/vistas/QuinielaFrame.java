@@ -139,7 +139,7 @@ public class QuinielaFrame extends JFrame {
 
         // EVENTO: REGRESAR DE FORMA SEGURA
         btnVolver.addActionListener(e -> {
-            new TorneoPrediccionesFrame(conexion, usuarioSesion);
+            new JornadaHubFrame(conexion, usuarioSesion);
             dispose();
         });
     }
