@@ -368,6 +368,7 @@ public class QuinielaFrame extends JFrame {
         boton.setForeground(Color.WHITE);
         boton.setFont(new Font("Segoe UI", Font.BOLD, 15));
         boton.setFocusPainted(false);
+        boton.setOpaque(true);
         boton.setBorderPainted(false);
         boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         return boton;

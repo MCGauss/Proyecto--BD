@@ -130,6 +130,8 @@ public class TorneoPrediccionesFrame extends JFrame {
         btnVolver = crearBoton("VOLVER AL MENÚ", new Color(15, 23, 42));
         // Centrado matemático perfecto dentro del ancho estándar del frame (1600)
         btnVolver.setBounds(690, 35, 220, 50); 
+        btnVolver.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnVolver.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         panelInferior.add(btnVolver);
 
         btnVolver.addActionListener(e -> {
@@ -176,6 +178,8 @@ public class TorneoPrediccionesFrame extends JFrame {
                 esConsulta ? new Color(100, 116, 139) : new Color(59, 130, 246)
         );
         btnEntrar.setBounds(1160, 35, 220, 45);
+        btnEntrar.setOpaque(true);
+        btnEntrar.setBorderPainted(false);
 
         btnEntrar.addActionListener(e -> {
             QuinielaFrame frame = new QuinielaFrame(conexion, usuarioSesion, jornadaObjeto.getIdJornada());
@@ -199,8 +203,9 @@ public class TorneoPrediccionesFrame extends JFrame {
         boton.setBackground(color);
         boton.setForeground(Color.WHITE);
         boton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        boton.setFocusPainted(false);
+        boton.setOpaque(true);
         boton.setBorderPainted(false);
+        boton.setFocusPainted(false);
         boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         return boton;
     }
