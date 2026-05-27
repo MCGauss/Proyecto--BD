@@ -2,7 +2,7 @@ package mx.unam.fes.acatlan.mac.proyectobd.frontend.vistas;
 
 import java.awt.*;
 import java.io.File;
-import java.sql.Connection; // CONEXIÓN INTEGRADA A POSTGRESQL
+import java.sql.Connection; 
 import javax.swing.*;
 import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Usuarios; // IMPORTA TU MODELO
 
