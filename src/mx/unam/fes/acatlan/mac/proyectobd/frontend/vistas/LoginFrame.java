@@ -7,6 +7,7 @@ import javax.swing.*;
 
 // IMPORTA TUS CLASES DEL BACKEND
 import mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.UsuariosDAO;
+import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Rol;
 import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Usuarios;
 
 public class LoginFrame extends JFrame {
@@ -164,10 +165,21 @@ public class LoginFrame extends JFrame {
                 Usuarios usuarioLogueado = dao.validarLogin(user, passsword);
 
                 if (usuarioLogueado != null) {
-                    JOptionPane.showMessageDialog(this, "¡Bienvenido, " + usuarioLogueado.getUsername() + "!");
+                	// BIFURCACIÓN DE VISTAS SEGÚN EL ROL DE LA BASE DE DATOS
+                    // Revisa cómo se llama el getter de tu modelo (ej. getIdRol() o idRol)
+                    if (usuarioLogueado.getRol() == Rol.ADMINISTRADOR) { 
+                        JOptionPane.showMessageDialog(this, "¡Bienvenido al Panel de Administración, " + usuarioLogueado.getUsername() + "!");
+                        
+                        // Abrimos el menú exclusivo para administradores
+                        new MenuAdministradorFrame(conexion, usuarioLogueado);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "¡Bienvenido, " + usuarioLogueado.getUsername() + "!");
+                        
+                        // Abrimos el Menu Principal heredando la sesión de usuario convencional
+                        new MenuPrincipal(conexion, usuarioLogueado);
+                    }
+             
                     
-                    // Abrimos el Menu Principal heredando la sesión y la conexión
-                    new MenuPrincipal(conexion, usuarioLogueado);
                     dispose();
                 } else {
                     JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos.", "Error de Autenticación", JOptionPane.ERROR_MESSAGE);
