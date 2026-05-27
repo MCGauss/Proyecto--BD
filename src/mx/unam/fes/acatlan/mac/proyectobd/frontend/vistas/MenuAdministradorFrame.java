@@ -68,7 +68,7 @@ public class MenuAdministradorFrame extends JFrame {
 
         // Estilización de botones usando tu paleta visual corporativa
         btnActualizarGoles = crearBotonAdministrativo("ACTUALIZAR GOLES", new Color(59, 130, 246)); // Azul
-        btnGestionUsuarios = crearBotonAdministrativo("ELIMINAR / MODIFICAR USUARIOS", new Color(239, 68, 68)); // Rojo peligro
+        btnGestionUsuarios = crearBotonAdministrativo("ELIMINAR USUARIOS", new Color(239, 68, 68)); // Rojo peligro
         btnControlBolsas = crearBotonAdministrativo("AUDITORIA DE PREMIOS", new Color(16, 185, 129)); // Verde éxito
 
         panelAcciones.add(btnActualizarGoles);
@@ -80,7 +80,7 @@ public class MenuAdministradorFrame extends JFrame {
         panelInferior.setBackground(new Color(226, 232, 240));
         panelInferior.setLayout(new FlowLayout(FlowLayout.RIGHT, 30, 15));
 
-        btnCerrarSesion = new JButton("CERRAR SESIÓN SEGURA");
+        btnCerrarSesion = new JButton("CERRAR SESIÓN");
         btnCerrarSesion.setPreferredSize(new Dimension(220, 40));
         btnCerrarSesion.setBackground(new Color(71, 85, 105));
         btnCerrarSesion.setOpaque(true);

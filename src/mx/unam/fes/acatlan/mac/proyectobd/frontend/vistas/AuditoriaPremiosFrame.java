@@ -41,13 +41,13 @@ public class AuditoriaPremiosFrame extends JFrame {
         panelSup.setBackground(new Color(15, 23, 42)); // Slate oscuro
         panelSup.setBorder(BorderFactory.createEmptyBorder(15, 10, 15, 10));
         
-        JLabel lblTitulo = new JLabel("AUDITORÍA GENERAL Y HISTORIAL DE PAGOS DE PREMIOS");
+        JLabel lblTitulo = new JLabel("HISTORIAL DE PAGOS-PREMIOS");
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitulo.setForeground(Color.WHITE);
         panelSup.add(lblTitulo);
 
         // Configuración de la Tabla de Solo Lectura
-        String[] columnas = {"FECHA DE PAGO", "MONTO DISTRIBUIDO", "NÚMERO DE JORNADA / BOLSA", "USERNAME GANADOR"};
+        String[] columnas = {"FECHA DE PAGO", "MONTO APLICADO", "JORNADA ", "USERNAME GANADOR"};
         DefaultTableModel modelo = new DefaultTableModel(null, columnas) {
             private static final long serialVersionUID = 1L;
             @Override

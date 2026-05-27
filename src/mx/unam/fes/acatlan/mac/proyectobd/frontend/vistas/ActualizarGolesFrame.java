@@ -153,7 +153,7 @@ public class ActualizarGolesFrame extends JFrame {
                 }
 
                 // Query SQL apuntando a la tabla 'partido' de tu LDD
-                String sql = "UPDATE partido SET goles_eq_local = ?, goles_eq_vis = ?, id_status_partido = 2 WHERE id_partido = ?";
+                String sql = "UPDATE partido SET goles_eq_local = ?, goles_eq_vis = ?, id_status_partido = 3 WHERE id_partido = ?";
                 PreparedStatement ps = conexion.prepareStatement(sql);
                 ps.setInt(1, gLocal);
                 ps.setInt(2, gVis);
@@ -181,6 +181,7 @@ public class ActualizarGolesFrame extends JFrame {
                          "JOIN equipos el ON p.id_eq_local = el.id_equipo " +
                          "JOIN equipos ev ON p.id_eq_vis = ev.id_equipo " +
                          "JOIN jornadas j ON p.id_jornada = j.id_jornada " +
+                         "WHERE p.id_status_partido = 3 " + // Solo traea  los partidos con estatus finalizado
                          "ORDER BY p.id_partido ASC";
             
             PreparedStatement ps = conexion.prepareStatement(sql);

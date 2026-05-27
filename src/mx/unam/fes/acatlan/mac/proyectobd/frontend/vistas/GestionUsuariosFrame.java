@@ -39,13 +39,13 @@ public class GestionUsuariosFrame extends JFrame {
         // Encabezado
         JPanel panelSup = new JPanel(new FlowLayout(FlowLayout.CENTER));
         panelSup.setBackground(new Color(15, 23, 42));
-        JLabel lblTitulo = new JLabel("DELEGACIÓN Y BAJA DE USUARIOS");
+        JLabel lblTitulo = new JLabel("BAJA DE USUARIOS");
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 22));
         lblTitulo.setForeground(Color.WHITE);
         panelSup.add(lblTitulo);
 
         // Tabla
-        String[] columnas = {"ID", "USERNAME", "EMAIL", "SALDO CURRENT"};
+        String[] columnas = {"ID USUARIO", "USERNAME", "EMAIL", "SALDO ACTUAL"};
         DefaultTableModel modelo = new DefaultTableModel(null, columnas) {
             private static final long serialVersionUID = 1L;
             @Override
@@ -72,7 +72,7 @@ public class GestionUsuariosFrame extends JFrame {
         JPanel panelInf = new JPanel(new FlowLayout(FlowLayout.CENTER, 30, 15));
         panelInf.setBackground(new Color(226, 232, 240));
 
-        btnEliminar = new JButton("ELIMINAR USUARIO SELECCIONADO");
+        btnEliminar = new JButton("ELIMINAR USUARIO");
         btnEliminar.setBackground(new Color(239, 68, 68)); // Rojo peligro
         btnEliminar.setForeground(Color.WHITE);
         btnEliminar.setFont(new Font("Segoe UI", Font.BOLD, 13));

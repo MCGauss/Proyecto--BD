@@ -70,6 +70,8 @@ public class MenuPrincipal extends JFrame {
         // BOTONES CON COLORES, FUENTES, COORDENADAS Y TEXTOS EXACTOS DE TONY
         btnQuinielas = new JButton("QUINIELAS");
         btnQuinielas.setBounds(25, 160, 200, 50);
+        btnQuinielas.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnQuinielas.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         btnQuinielas.setBackground(new Color(59, 130, 246)); // Azul brillante
         btnQuinielas.setForeground(Color.WHITE);
         btnQuinielas.setFont(new Font("Arial", Font.BOLD, 16));
@@ -79,6 +81,8 @@ public class MenuPrincipal extends JFrame {
 
         btnRanking = new JButton("RANKING");
         btnRanking.setBounds(25, 240, 200, 50);
+        btnRanking.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnRanking.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         btnRanking.setBackground(new Color(16, 185, 129)); // Verde éxito
         btnRanking.setForeground(Color.WHITE);
         btnRanking.setFont(new Font("Arial", Font.BOLD, 16));
@@ -88,6 +92,8 @@ public class MenuPrincipal extends JFrame {
 
         btnCuenta = new JButton("MI CUENTA");
         btnCuenta.setBounds(25, 320, 200, 50);
+        btnCuenta.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnCuenta.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         btnCuenta.setBackground(new Color(245, 158, 11)); // Ámbar/Naranja cuenta
         btnCuenta.setForeground(Color.WHITE);
         btnCuenta.setFont(new Font("Arial", Font.BOLD, 16));
@@ -97,6 +103,8 @@ public class MenuPrincipal extends JFrame {
 
         btnSalir = new JButton("CERRAR SESIÓN");
         btnSalir.setBounds(25, 480, 200, 45); 
+        btnSalir.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnSalir.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         btnSalir.setBackground(new Color(71, 85, 105)); // Gris Slate de salida discreto
         btnSalir.setForeground(Color.WHITE);
         btnSalir.setFont(new Font("Arial", Font.BOLD, 15));
