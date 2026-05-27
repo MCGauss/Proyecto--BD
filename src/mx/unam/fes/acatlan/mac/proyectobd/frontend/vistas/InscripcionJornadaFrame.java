@@ -177,7 +177,7 @@ public class InscripcionJornadaFrame extends JFrame {
             dispose();
         });
 
-        add(panelInferior, BorderLayout.CENTER);
+        add(panelInferior, BorderLayout.AFTER_LAST_LINE);
     }
 
     // ========================================================
