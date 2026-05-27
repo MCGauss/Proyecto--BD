@@ -8,16 +8,19 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.ArrayList;
 
 import mx.unam.fes.acatlan.mac.proyectobd.backend.model.*;
 import mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.*;
 
 public class MiCuentaFrame extends JFrame {
 
-    JPanel panel;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	JPanel panel;
 
     JLabel lblTitulo;
     JLabel lblSaldo;
@@ -37,7 +40,7 @@ public class MiCuentaFrame extends JFrame {
     // ATRIBUTOS DE PERSISTENCIA INYECTADOS
     private Connection conexion;
     private Usuarios usuarioSesion;
-    private Predicciones pred;
+
 
     // CONSTRUCTOR ADAPTADO PARA MANTENER LA PERSISTENCIA DE LA SESIÓN ACTIVA
     public MiCuentaFrame(Connection conexion, Usuarios usuarioSesion) {
@@ -160,7 +163,12 @@ public class MiCuentaFrame extends JFrame {
 
         String[] columnas = {"FECHA", "TIPO DE MOVIMIENTO", "MONTO"};
         DefaultTableModel modelo = new DefaultTableModel(columnas, 0) {
-            @Override
+            /**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
