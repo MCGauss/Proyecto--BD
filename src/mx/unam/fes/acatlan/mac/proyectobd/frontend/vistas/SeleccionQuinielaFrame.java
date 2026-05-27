@@ -132,9 +132,9 @@ public class SeleccionQuinielaFrame extends JFrame {
         lblJornadaDesc.setBounds(60, 100, 280, 120);
 
         btnJornada = new JButton("ENTRAR");
-
         btnJornada.setBounds(110, 250, 180, 45);
-
+        btnJornada.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnJornada.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         btnJornada.setBackground(
                 new Color(59,130,246)
         );
@@ -212,9 +212,9 @@ public class SeleccionQuinielaFrame extends JFrame {
         lblTorneoDesc.setBounds(60, 100, 280, 120);
 
         btnTorneo = new JButton("ENTRAR");
-
         btnTorneo.setBounds(110, 250, 180, 45);
-
+        btnTorneo.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnTorneo.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         btnTorneo.setBackground(
                 new Color(16,185,129)
         );
@@ -226,9 +226,7 @@ public class SeleccionQuinielaFrame extends JFrame {
         );
 
         btnTorneo.setFocusPainted(false);
-
         btnTorneo.setBorderPainted(false);
-
         btnTorneo.setCursor(
                 new Cursor(Cursor.HAND_CURSOR)
         );
@@ -244,9 +242,9 @@ public class SeleccionQuinielaFrame extends JFrame {
         // =========================
 
         btnVolver = new JButton("VOLVER");
-
         btnVolver.setBounds(470, 560, 220, 45);
-
+        btnVolver.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnVolver.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         btnVolver.setBackground(
                 new Color(71,85,105)
         );
