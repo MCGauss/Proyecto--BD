@@ -46,10 +46,10 @@ public class BolsaPremiosDAO {
      */
     public boolean guardarOActualizarMonto(int idJornada, double montoAAgregar, StatusBolsa estatus) {
         
-        String query = "INSERT INTO bolsa_premios (id_jornada, monto_total, status_bolsa) "
-                   + "VALUES (?, ?, ?) "
-                   + "ON CONFLICT (id_jornada) "
-                   + "DO UPDATE SET monto_total = bolsa_premios.monto_total + EXCLUDED.monto_total;";
+        String query = "SELECT b.id_bolsa, b.monto_total, c.nombre_status " +
+                "FROM bolsa_premios b " +
+                "JOIN cat_status_bolsa c ON b.status_bolsa = c.id_status " +
+                "WHERE b.id_jornada = ?;";
 
         try (PreparedStatement ps = conexion.prepareStatement(query)) {
             ps.setInt(1, idJornada);
@@ -80,8 +80,12 @@ public class BolsaPremiosDAO {
                     bolsa.setMontoAcumulado(rs.getDouble("monto_total"));
                     
                     // Conversión segura de String de la BD de vuelta al ENUM de Java
-                    String statusStr = rs.getString("status_bolsa");
-                    bolsa.setStatusBolsa(StatusBolsa.valueOf(statusStr));
+                    int statusInt = rs.getInt("status_bolsa");
+                    
+                 // Restamos 1 si en tu base de datos los IDs empiezan en 1 pero en Java los arreglos empiezan en 0
+                    if (!rs.wasNull()) {
+                        bolsa.setStatusBolsa(StatusBolsa.values()[statusInt - 1]);
+                    }
                     
                     // Cascarón de la jornada relacionando el ID
                     Jornadas j = new Jornadas();

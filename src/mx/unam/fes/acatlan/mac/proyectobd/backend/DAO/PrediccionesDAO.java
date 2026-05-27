@@ -124,4 +124,22 @@ public class PrediccionesDAO {
             throw e;
         }
     }
+    
+    /**
+     * SELECT: Cuenta cuántas predicciones tiene activas (partidos programados) el usuario.
+     */
+    public int contarPrediccionesActivas(int idUsuario) {
+        String query = "SELECT COUNT(*) FROM predicciones JOIN partido USING (id_partido) WHERE id_status_partido = 1 AND id_usuario = ?;";
+        try (PreparedStatement ps = conexion.prepareStatement(query)) {
+            ps.setInt(1, idUsuario);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }
