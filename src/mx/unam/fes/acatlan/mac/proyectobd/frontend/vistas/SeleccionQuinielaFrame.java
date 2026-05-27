@@ -1,9 +1,11 @@
 package mx.unam.fes.acatlan.mac.proyectobd.frontend.vistas;
 
 import java.awt.*;
-import java.sql.Connection; // INTEGRADO PARA LA SESIÓN DE BASE DE DATOS
+import java.sql.Connection;
 import javax.swing.*;
-import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Usuarios; // IMPORTA TU MODELO
+
+import mx.unam.fes.acatlan.mac.proyectobd.backend.model.*;
+import mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.*;
 
 public class SeleccionQuinielaFrame extends JFrame {
 
