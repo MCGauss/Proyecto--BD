@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package mx.unam.fes.acatlan.mac.proyectobd.frontend.vistas;
 
 import java.awt.*;
@@ -312,7 +308,7 @@ public class TorneoPrediccionesFrame extends JFrame {
         btnEntrar.addActionListener(e -> {
 
             QuinielaFrame frame =
-                    new QuinielaFrame(conexion, usuarioSesion);
+                    new QuinielaFrame(conexion, usuarioSesion, jornada);
 
             if(jornada <= 4){
 
@@ -366,5 +362,6 @@ public class TorneoPrediccionesFrame extends JFrame {
         return boton;
 
     }
+
 
 }

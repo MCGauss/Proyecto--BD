@@ -50,6 +50,25 @@ public class InscripcionesDAO {
             throw e;
         }
     }
+    
+    /**
+     * SELECT: Cuenta los torneos completos a los que se ha inscrito el usuario.
+     */
+    public int contarTorneosInscritos(int idUsuario) {
+        // Ajusta el id_tipo_inscripcion según tu catálogo (ej. 2 para Torneo Completo) o si id_jornada IS NULL
+        String query = "SELECT COUNT(*) FROM inscripciones WHERE id_usuario = ? AND id_jornada IS NULL;";
+        try (PreparedStatement ps = conexion.prepareStatement(query)) {
+            ps.setInt(1, idUsuario);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 
     /**
      * SELECT: Verifica si un usuario ya pagó su inscripción para una jornada específica.

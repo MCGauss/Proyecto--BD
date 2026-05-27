@@ -106,13 +106,13 @@ public class UsuariosDAO {
      * CALLABLE STATEMENT: Invoca el procedimiento almacenado 'sp_registrar_deposito' 
      */
     public boolean abonarSaldoPorDeposito(int idUsuario, double monto) throws SQLException {
-        String query = "{CALL sp_registrar_deposito(?, ?)}";
+        String query = "CALL sp_registrar_deposito(?, ?);";
 
         try (CallableStatement cstmt = conexion.prepareCall(query)) {
             cstmt.setInt(1, idUsuario);
-            cstmt.setDouble(2, monto);
+            cstmt.setBigDecimal(2, java.math.BigDecimal.valueOf(monto));
 
-            cstmt.execute();
+            cstmt.executeUpdate();
             return true;
         } catch (SQLException e) {
             System.err.println("Error en CallableStatement sp_registrar_deposito: " + e.getMessage());

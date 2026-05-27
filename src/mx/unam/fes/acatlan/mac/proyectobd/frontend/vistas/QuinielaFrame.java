@@ -1,13 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package mx.unam.fes.acatlan.mac.proyectobd.frontend.vistas;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.net.URL;
-import java.sql.Connection; // INYECTADO PARA ARQUITECTURA GLOBAL
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import javax.imageio.ImageIO;
@@ -31,28 +27,26 @@ public class QuinielaFrame extends JFrame {
 
     boolean editable = true;
 
-    // ATRIBUTOS DE CONTROL DE PERSISTENCIA Y SESIÓN (FES ACATLÁN - MAC)
+    // ATRIBUTOS DE CONTROL DE PERSISTENCIA Y SESIÓN
     private Connection conexion;
     private Usuarios usuarioSesion;
     private int idJornada; // Control de la jornada seleccionada
-    private int idTorneo; //Control del torneo en cuestión
-    
- // DAOs necesarios para la lógica real
+
+    // DAOs necesarios para la lógica real
     private PartidosDAO partidosDAO;
     private BolsaPremiosDAO bolsaPremiosDAO;
 
-    // CONSTRUCTOR MODIFICADO PARA INYECTAR LA CONEXIÓN Y LA SESIÓN ACTIVA
-    public QuinielaFrame(Connection conexion, Usuarios usuarioSesion, int idJornada, int idTorneo) {
+    // CONSTRUCTOR MODIFICADO: Ahora recibe el idJornada desde la ventana anterior
+    public QuinielaFrame(Connection conexion, Usuarios usuarioSesion, int idJornada) {
         this.conexion = conexion;
         this.usuarioSesion = usuarioSesion;
         this.idJornada = idJornada;
-        this.idTorneo = idTorneo;
         
-        //Conexión compartida a la BD
+        // Inicializar los DAOs con la conexión compartida
         this.partidosDAO = new PartidosDAO(conexion);
         this.bolsaPremiosDAO = new BolsaPremiosDAO(conexion);
 
-        setTitle("Quiniela - FootBets");
+        setTitle("Quiniela Oficial - Foreign Key Squad");
         setSize(1500, 950);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -74,12 +68,13 @@ public class QuinielaFrame extends JFrame {
         panelSuperior.setBackground(new Color(15, 23, 42));
         panelSuperior.setLayout(null);
 
-        lblTitulo = new JLabel("QUINIELA - JORNADA " +idJornada);
+        // TEXTO DINÁMICO: Cambia según la jornada real de la BD
+        lblTitulo = new JLabel("QUINIELA - JORNADA " + idJornada);
         lblTitulo.setForeground(Color.WHITE);
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 34));
         lblTitulo.setBounds(40, 20, 500, 40);
 
-        lblSubtitulo = new JLabel("TORNEO: " + idTorneo);
+        lblSubtitulo = new JLabel("TEMPORADA EN CURSO");
         lblSubtitulo.setForeground(new Color(148, 163, 184));
         lblSubtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 20));
         lblSubtitulo.setBounds(45, 65, 250, 25);
@@ -89,19 +84,19 @@ public class QuinielaFrame extends JFrame {
         lblPremio = new JLabel("PREMIO ACUMULADO: $" + String.format("%,.2f", montoBolsa));
         lblPremio.setForeground(new Color(16, 185, 129));
         lblPremio.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        lblPremio.setBounds(980, 40, 400, 35);
+        lblPremio.setBounds(980, 40, 450, 35);
 
         panelSuperior.add(lblTitulo);
         panelSuperior.add(lblSubtitulo);
         panelSuperior.add(lblPremio);
-        
-        //Panel de partidos (grid)
+
+        // PANEL DE PARTIDOS CON UN GRIDLAYOUT FLEXIBLE (0 filas indica renglones infinitos autoadaptables)
         panelPartidos = new JPanel();
         panelPartidos.setBackground(new Color(226, 232, 240));
         panelPartidos.setLayout(new GridLayout(0, 1, 18, 18));
         panelPartidos.setBorder(BorderFactory.createEmptyBorder(25, 35, 25, 35));
 
-        //Carga dinámica de los partidos desde la BD
+        // CARGA DINÁMICA DE PARTIDOS DESDE POSTGRESQL
         List<Partido> listaPartidos = partidosDAO.obtenerPartidosPorJornada(idJornada);
         
         if (listaPartidos == null || listaPartidos.isEmpty()) {
@@ -114,7 +109,7 @@ public class QuinielaFrame extends JFrame {
                 panelPartidos.add(crearTarjetaPartido(partido));
             }
         }
-        
+
         JScrollPane scroll = new JScrollPane(panelPartidos);
         scroll.setBorder(null);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
@@ -136,23 +131,24 @@ public class QuinielaFrame extends JFrame {
 
         add(panelPrincipal);
 
-        // EVENTO: GUARDAR PREDICCIONES CONECTADO AL CONTEXTO DE LA BASE DE DATOS
+        // EVENTO: GUARDAR PREDICCIONES EN BASE DE DATOS
         btnGuardar.addActionListener(e -> {
-            // Aquí puedes instanciar tus DAOs compartidos con Diana más adelante para guardar en PostgreSQL
-            JOptionPane.showMessageDialog(null, "Predicciones guardadas correctamente en PostgreSQL");
+            // Aquí puedes iterar los Spinners de panelPartidos y usar tu PrediccionesDAO para insertar/actualizar
+            JOptionPane.showMessageDialog(null, "Predicciones sincronizadas con el motor PostgreSQL");
         });
 
-        // EVENTO: RETORNO PROPAGANDO LOS PARÁMETROS SIN COMPROMETER LA NAVEGACIÓN
+        // EVENTO: REGRESAR DE FORMA SEGURA
         btnVolver.addActionListener(e -> {
             new TorneoPrediccionesFrame(conexion, usuarioSesion);
             dispose();
         });
     }
 
+    // MÉTODO MODIFICADO PARA ACOMODAR EL ESCUDO EN LA PARTE SUPERIOR DEL NOMBRE DEL EQUIPO
     private JPanel crearTarjetaPartido(Partido partido) {
         JPanel card = new JPanel();
         card.setLayout(null);
-        card.setPreferredSize(new Dimension(1350, 140));
+        card.setPreferredSize(new Dimension(1350, 140)); // Aumentamos la altura a 140 para dar espacio al escudo vertical
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createLineBorder(new Color(203, 213, 225), 2));
 
@@ -251,7 +247,7 @@ public class QuinielaFrame extends JFrame {
             }
         });
 
-        //añadir subpaneles
+        // Agregamos los sub-paneles y componentes a la tarjeta base
         card.add(contenedorLocal);
         card.add(lblGolesLocal);
         card.add(spnLocal);
@@ -265,37 +261,44 @@ public class QuinielaFrame extends JFrame {
 
         return card;
     }
-    
+
     /**
-    * Helper Method: Descarga/Lee la imagen del escudo 
-    */
-    private ImageIcon cargarIconoEscudo(String nombreArchivo) {
+     * Helper Method: Descarga/Lee la imagen del escudo basándose en la URL de la base de datos 
+     * y le aplica un filtro Smooth Rescaling para no romper el aspecto visual de la App.
+     */
+    private ImageIcon cargarIconoEscudo(String rutaUrl) {
+        int anchoDeseado = 55;
+        int altoDeseado = 55;
         try {
-            // Construimos la ruta apuntando a la carpeta Assets en las raíces del proyecto
-            String rutaCompleta = "/Assets/" + nombreArchivo;
-            
-            // Buscamos el archivo como un recurso del sistema (ClassLoader)
-            java.net.URL imgURL = getClass().getResource(rutaCompleta);
-            
-            if (imgURL != null) {
-                ImageIcon iconoOriginal = new ImageIcon(imgURL);
-                
-                // Escalamos la imagen de forma suave para que encaje perfecto en el Label (ej. 60x60 píxeles)
-                Image imagenEscalada = iconoOriginal.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
-                
-                return new ImageIcon(imagenEscalada);
-            } else {
-                System.err.println("No se pudo encontrar el archivo de escudo en la ruta: " + rutaCompleta);
-                return null;
+            if (rutaUrl != null && (rutaUrl.startsWith("http://") || rutaUrl.startsWith("https://"))) {
+                // Opción A: Es una URL de Internet (ej. almacenamiento en la nube o links públicos)
+                URL url = new URL(rutaUrl);
+                BufferedImage img = ImageIO.read(url);
+                if (img != null) {
+                    Image imgEscalada = img.getScaledInstance(anchoDeseado, altoDeseado, Image.SCALE_SMOOTH);
+                    return new ImageIcon(imgEscalada);
+                }
+            } else if (rutaUrl != null && !rutaUrl.trim().isEmpty()) {
+                // Opción B: Ruta de recursos locales dentro de tu propio .jar (src/main/resources...)
+                URL urlRecurso = getClass().getResource(rutaUrl);
+                if (urlRecurso != null) {
+                    ImageIcon iconoOriginal = new ImageIcon(urlRecurso);
+                    Image imgEscalada = iconoOriginal.getImage().getScaledInstance(anchoDeseado, altoDeseado, Image.SCALE_SMOOTH);
+                    return new ImageIcon(imgEscalada);
+                }
             }
-        } catch (Exception e) {
-            System.err.println("Error al cargar la imagen local: " + e.getMessage());
-            e.printStackTrace();
-            return null;
+        } catch (Exception ex) {
+            System.err.println("Aviso: No se pudo renderizar el escudo desde: " + rutaUrl + " (Se usará el fallback por defecto).");
         }
+        
+        // Opción Fallback: Si no hay imagen o falla la red, genera una silueta gris para no quebrar la vista
+        BufferedImage fallback = new BufferedImage(anchoDeseado, altoDeseado, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = fallback.createGraphics();
+        g2.setColor(new Color(203, 213, 225));
+        g2.fillOval(0, 0, anchoDeseado, altoDeseado);
+        g2.dispose();
+        return new ImageIcon(fallback);
     }
-    
-    
 
     private JButton crearBoton(String texto, Color color) {
         JButton boton = new JButton(texto);
@@ -306,7 +309,6 @@ public class QuinielaFrame extends JFrame {
         boton.setFocusPainted(false);
         boton.setBorderPainted(false);
         boton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
         return boton;
     }
 }

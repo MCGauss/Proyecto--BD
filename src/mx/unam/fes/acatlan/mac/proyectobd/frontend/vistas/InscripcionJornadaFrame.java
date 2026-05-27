@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package mx.unam.fes.acatlan.mac.proyectobd.frontend.vistas;
 
 import java.awt.*;
@@ -24,6 +20,7 @@ public class InscripcionJornadaFrame extends JFrame {
     // ATRIBUTOS DE PERSISTENCIA INYECTADOS
     private Connection conexion;
     private Usuarios usuarioSesion;
+    int jornada;
 
     // CONSTRUCTOR ADAPTADO PARA MANTENER LA PERSISTENCIA DE LA SESIÓN ACTIVA
     public InscripcionJornadaFrame(Connection conexion, Usuarios usuarioSesion) {
@@ -204,7 +201,7 @@ public class InscripcionJornadaFrame extends JFrame {
 
                 btnAccion.addActionListener(e -> {
                     // Pasa estado editable en falso y propaga la sesión actual
-                    QuinielaFrame frame = new QuinielaFrame(conexion, usuarioSesion);
+                    QuinielaFrame frame = new QuinielaFrame(conexion, usuarioSesion, jornada);
                     frame.editable = false; // (Suponiendo que el atributo sea público o manejado por Setter)
                     frame.setVisible(true);
                     dispose();
@@ -247,7 +244,7 @@ public class InscripcionJornadaFrame extends JFrame {
                     );
 
                     // Posteriormente aquí invocarás al DAO para restar el saldo en PostgreSQL
-                    new QuinielaFrame(conexion, usuarioSesion).setVisible(true);
+                    new QuinielaFrame(conexion, usuarioSesion, jornada).setVisible(true);
                     dispose();
 
                 });

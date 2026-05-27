@@ -1,17 +1,26 @@
 package mx.unam.fes.acatlan.mac.proyectobd.frontend.vistas;
 
 import java.awt.*;
-import java.sql.Connection; // CONEXIÓN INTEGRADA A POSTGRESQL
+import java.sql.Connection;
+import java.sql.SQLException;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import java.util.List;
+import java.util.Map;
 
 import mx.unam.fes.acatlan.mac.proyectobd.backend.model.*;
 import mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.*;
 
 public class MiCuentaFrame extends JFrame {
 
-    JPanel panel;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	JPanel panel;
 
     JLabel lblTitulo;
     JLabel lblSaldo;
@@ -31,6 +40,7 @@ public class MiCuentaFrame extends JFrame {
     // ATRIBUTOS DE PERSISTENCIA INYECTADOS
     private Connection conexion;
     private Usuarios usuarioSesion;
+
 
     // CONSTRUCTOR ADAPTADO PARA MANTENER LA PERSISTENCIA DE LA SESIÓN ACTIVA
     public MiCuentaFrame(Connection conexion, Usuarios usuarioSesion) {
@@ -62,7 +72,7 @@ public class MiCuentaFrame extends JFrame {
         // TITULO DINÁMICO CORREGIDO (.getUsername())
         // =========================================================
         String nombreUsuario = (usuarioSesion != null) ? usuarioSesion.getUsername().toUpperCase() : "USUARIO";
-        lblTitulo = new JLabel("BIENVENIDO " + nombreUsuario);
+        lblTitulo = new JLabel("BIENVENID@ " + nombreUsuario);
 
         lblTitulo.setFont(
                 new Font("Segoe UI", Font.BOLD, 30)
@@ -94,6 +104,7 @@ public class MiCuentaFrame extends JFrame {
         // CARD SALDO DINÁMICA
         // =========================
 
+        
         cardSaldo = crearCard(
                 "SALDO ACTUAL",
                 "$" + saldoActual,
@@ -104,21 +115,44 @@ public class MiCuentaFrame extends JFrame {
         // =========================
         // CARD QUINIELAS
         // =========================
+        /*SELECT COUNT(*)
+        FROM predicciones
+        JOIN partido USING (id_partido)
+        WHERE id_status_partido = 1
+        AND id_usuario = ?;*/
+        
+     // =========================================================
+        // RECUPERACIÓN DE DATOS DINÁMICOS DESDE DAOs
+        // =========================================================
+        int inscripcionesActivas = 0;
+        int torneosInscritos = 0;
 
+        if (usuarioSesion != null && conexion != null) {
+            // Instanciamos los DAOs pasándoles la conexión activa del Frame
+            PrediccionesDAO prediccionesDAO = new PrediccionesDAO(conexion);
+            InscripcionesDAO inscripcionesDAO = new InscripcionesDAO(conexion);
+            
+            // Consultamos los datos reales del usuario
+            inscripcionesActivas = prediccionesDAO.contarPrediccionesActivas(usuarioSesion.getIdUsuario());
+            torneosInscritos = inscripcionesDAO.contarTorneosInscritos(usuarioSesion.getIdUsuario());
+        }
+
+        // =========================================================
+        // CARD QUINIELAS / INSCRIPCIONES
+        // =========================================================
         cardQuinielas = crearCard(
-                "QUINIELAS ACTIVAS",
-                "3",
+                "INSCRIPCIONES ACTIVAS",
+                String.valueOf(inscripcionesActivas), // Convertimos a String para el método crearCard
                 430,
                 140
         );
 
-        // =========================
+        // =========================================================
         // CARD TORNEOS
-        // =========================
-
+        // =========================================================
         cardTorneos = crearCard(
                 "TORNEOS INSCRITOS",
-                "2",
+                String.valueOf(torneosInscritos),
                 790,
                 140
         );
@@ -127,68 +161,37 @@ public class MiCuentaFrame extends JFrame {
         // TABLA MOVIMIENTOS
         // =========================
 
-        String columnas[] = {
-            "FECHA",
-            "TIPO",
-            "MONTO"
+        String[] columnas = {"FECHA", "TIPO DE MOVIMIENTO", "MONTO"};
+        DefaultTableModel modelo = new DefaultTableModel(columnas, 0) {
+            /**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
 
-        String datos[][] = {};
+        tablaMovimientos = new JTable(modelo);
+        tablaMovimientos.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tablaMovimientos.setRowHeight(35);
+        tablaMovimientos.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        tablaMovimientos.getTableHeader().setBackground(new Color(15, 23, 42));
+        tablaMovimientos.getTableHeader().setForeground(Color.WHITE);
+        tablaMovimientos.setGridColor(new Color(226, 232, 240));
 
-        tablaMovimientos = new JTable(
-                new DefaultTableModel(datos, columnas)
-        );
-
-        cargarMovimientos();
-
-        tablaMovimientos.setRowHeight(38);
-
-        tablaMovimientos.setFont(
-                new Font("Segoe UI", Font.PLAIN, 14)
-        );
-
-        tablaMovimientos.setBackground(
-                new Color(30,41,59)
-        );
-
-        tablaMovimientos.setForeground(Color.WHITE);
-
-        tablaMovimientos.setGridColor(
-                new Color(71,85,105)
-        );
-
-        tablaMovimientos.getTableHeader().setBackground(
-                new Color(15,23,42)
-        );
-
-        tablaMovimientos.getTableHeader().setForeground(
-                Color.WHITE
-        );
-
-        tablaMovimientos.getTableHeader().setFont(
-                new Font("Segoe UI", Font.BOLD, 14)
-        );
-
-        // CENTRAR TEXTO
-
-        DefaultTableCellRenderer center =
-                new DefaultTableCellRenderer();
-
-        center.setHorizontalAlignment(
-                SwingConstants.CENTER
-        );
-
-        for(int i = 0; i < tablaMovimientos.getColumnCount(); i++) {
-
-            tablaMovimientos.getColumnModel()
-                    .getColumn(i)
-                    .setCellRenderer(center);
-
+        // Alineación central del contenido de las celdas
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        for (int i = 0; i < tablaMovimientos.getColumnCount(); i++) {
+            tablaMovimientos.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
         scroll = new JScrollPane(tablaMovimientos);
-
-        scroll.setBounds(180, 340, 800, 180);
+        scroll.setBounds(50, 280, 1100, 280);
+        panel.add(scroll);
 
         // =========================
         // BOTONES
@@ -237,14 +240,13 @@ public class MiCuentaFrame extends JFrame {
 
         panel.add(btnVolver);
 
-        add(panel);
 
         // =========================================================
         // EVENTOS CON PROPAGACIÓN DE FLUJO Y DATOS DE SESIÓN
         // =========================================================
 
         btnRecargar.addActionListener(e -> {
-            new RecargaSaldoFrame(conexion, usuarioSesion).setVisible(true);
+            new RecargaSaldoFrame(conexion, usuarioSesion).setVisible(true); //CHECAR COMPATIBILIDAD CON TRANSACCIONES ????
             dispose();
         });
 
@@ -257,6 +259,11 @@ public class MiCuentaFrame extends JFrame {
             new MenuPrincipal(conexion, usuarioSesion).setVisible(true);
             dispose();
         });
+        
+        add(panel);
+        
+        //Método dinámico para conectar la BD
+        cargarMovimientos();
 
     }
 
@@ -349,30 +356,35 @@ public class MiCuentaFrame extends JFrame {
     // =========================================================
 
     private void cargarMovimientos() {
+        DefaultTableModel modelo = (DefaultTableModel) tablaMovimientos.getModel();
+        modelo.setRowCount(0); // Limpiamos las filas por defecto del Mock Data anterior
 
-        DefaultTableModel modelo =
-                (DefaultTableModel)
-                        tablaMovimientos.getModel();
+        if (usuarioSesion == null) {
+            return;
+        }
 
-        // Posteriormente usarás usuarioSesion.getIdUsuario() con tu DAO
-        modelo.addRow(new Object[] {
-                "10/05/2026",
-                "RECARGA",
-                "+$500"
-        });
+        try {
+            // Instanciar el DAO pasándole el objeto Connection inyectado
+            TransaccionesDAO transDAO = new TransaccionesDAO(conexion);
+            
+            // Consultar la tabla unificada 'transaccion' filtrada por el usuario activo
+            List<Map<String, Object>> listaTransacciones = transDAO.obtenerHistorialPorUsuario(usuarioSesion.getIdUsuario());
 
-        modelo.addRow(new Object[] {
-                "11/05/2026",
-                "INSCRIPCIÓN",
-                "-$100"
-        });
+            // Agregar cada registro mapeado directamente en el JTable
+            for (Map<String, Object> mov : listaTransacciones) {
+                modelo.addRow(new Object[] {
+                    mov.get("fecha"),
+                    mov.get("tipo"),
+                    mov.get("monto")
+                });
+            }
 
-        modelo.addRow(new Object[] {
-                "12/05/2026",
-                "PREMIO",
-                "+$250"
-        });
-
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, 
+                "Error al recuperar el historial unificado desde PostgreSQL: " + ex.getMessage(), 
+                "Error de Base de Datos", 
+                JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
     }
-
 }
