@@ -227,20 +227,106 @@ public class InscripcionJornadaFrame extends JFrame {
 
         // APLICACIÓN DE REGLAS DE NEGOCIO EN BASE AL ESTATUS CALCULADO
         switch (estatus) {
-            case "DISPONIBLE":
-                lblEstado.setText("DISPONIBLE / ABIERTA");
-                lblEstado.setForeground(new Color(16, 185, 129)); // Esmeralda
+        case "DISPONIBLE":
+            lblEstado.setText("DISPONIBLE");
+            lblEstado.setForeground(new Color(16, 185, 129)); // Verde Emerald
+            
+            btnAccion.setText("PAGAR INSCRIPCIÓN");
+            btnAccion.setBackground(new Color(16, 185, 129));
+            btnAccion.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            
+            btnAccion.addActionListener(e -> {
+                // 1. Confirmación de compra
+                int opcion = JOptionPane.showConfirmDialog(
+                    this, 
+                    "¿Deseas pagar la inscripción para la Jornada " + idJornada + "?\nCosto: $50.00", 
+                    "Confirmar Pago", 
+                    JOptionPane.YES_NO_OPTION, 
+                    JOptionPane.QUESTION_MESSAGE
+                );
                 
-                btnAccion.setText("PAGAR");
-                btnAccion.setBackground(new Color(16, 185, 129));
-                btnAccion.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                
-                btnAccion.addActionListener(e -> {
-                	//validar que tienes saldo suficiente y si es así, generar una inscripción (un insert into inscripciones para el usuario que se inscribió)
-                    new QuinielaFrame(conexion, usuarioSesion, idJornada).setVisible(true);
-                    dispose();
-                });
-                break;
+                if (opcion == JOptionPane.YES_OPTION) {
+                    try {
+                        // 2. Instanciar el DAO
+                        mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.InscripcionesDAO inscripcionesDAO = 
+                            new mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.InscripcionesDAO(conexion);
+                        
+                        // 3. Construir el objeto de Inscripción según tu modelo real
+                        mx.unam.fes.acatlan.mac.proyectobd.backend.model.Inscripciones nuevaInscripcion = 
+                            new mx.unam.fes.acatlan.mac.proyectobd.backend.model.Inscripciones();
+                        
+                        // Asignar el usuario logueado en la sesión
+                        nuevaInscripcion.setUsuario(usuarioSesion);
+                        
+                        // Asignar la jornada actual creando su cascarón
+                        mx.unam.fes.acatlan.mac.proyectobd.backend.model.Jornadas j = 
+                            new mx.unam.fes.acatlan.mac.proyectobd.backend.model.Jornadas();
+                        j.setIdJornada(idJornada);
+                        nuevaInscripcion.setJornada(j);
+                        
+                        // Asignar el Tipo de Inscripción por Jornada (ID = 2 de tus catálogos)
+                        mx.unam.fes.acatlan.mac.proyectobd.backend.model.TipoInscripcion tipo = 
+                            new mx.unam.fes.acatlan.mac.proyectobd.backend.model.TipoInscripcion();
+                        tipo.setIdTipoInscripcion(2); 
+                        nuevaInscripcion.setTipoInscripcion(tipo);
+                        
+                        // Definir la cuota pagada
+                        nuevaInscripcion.setMontoTrans(20.00);
+                        
+                        // SOLUCIÓN AL ERROR: Quitamos el objeto Transaccion complejo.
+                        // Dejamos que el ID de la inscripción se maneje en 0 o vacío ya que
+                        // la base de datos genera el id_inscripcion de forma automática (SERIAL / IDENTITY).
+
+                        // 4. Ejecutar el insert en la Base de Datos
+                        boolean exito = inscripcionesDAO.registrarInscripcion(nuevaInscripcion);
+                        
+                        if (exito) {
+                            // Sincronización visual del saldo en el objeto Java de la sesión
+                            usuarioSesion.setSaldo(usuarioSesion.getSaldo() - 20.00);
+                            
+                            JOptionPane.showMessageDialog(
+                                this, 
+                                "¡Inscripción generada con éxito!\nSe han descontado $50.00 de tu saldo.", 
+                                "Pago Exitoso", 
+                                JOptionPane.INFORMATION_MESSAGE
+                            );
+                            
+                            // 5. Abrir la quiniela y cerrar la ventana actual
+                            new QuinielaFrame(conexion, usuarioSesion, idJornada).setVisible(true);
+                            dispose();
+                        } else {
+                            JOptionPane.showMessageDialog(
+                                this, 
+                                "No se pudo procesar la inscripción. Inténtalo de nuevo.", 
+                                "Error", 
+                                JOptionPane.ERROR_MESSAGE
+                            );
+                        }
+                        
+                    } catch (java.sql.SQLException ex) {
+                        // Captura de las excepciones personalizadas de tus Triggers de Postgres
+                        String mensajeError = ex.getMessage();
+                        
+                        if (mensajeError.contains("ERROR:")) {
+                            int inicio = mensajeError.indexOf("ERROR:") + 6;
+                            int fin = mensajeError.indexOf("\n", inicio);
+                            if (fin != -1) {
+                                mensajeError = mensajeError.substring(inicio, fin).trim();
+                            } else {
+                                mensajeError = mensajeError.substring(inicio).trim();
+                            }
+                        }
+                        
+                        JOptionPane.showMessageDialog(
+                            this, 
+                            "Transacción Rechazada:\n" + mensajeError, 
+                            "Validación de la Base de Datos", 
+                            JOptionPane.WARNING_MESSAGE
+                        );
+                    }
+                }
+            });
+            break;
 
             case "EN CURSO":
                 lblEstado.setText("EN CURSO / EN JUEGO");

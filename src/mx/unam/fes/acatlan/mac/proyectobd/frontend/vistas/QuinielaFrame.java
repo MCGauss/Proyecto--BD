@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 
 import mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.BolsaPremiosDAO;
 import mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.PartidosDAO;
@@ -347,7 +346,7 @@ public class QuinielaFrame extends JFrame {
                     nombreArchivo = nombreArchivo.substring(0, nombreArchivo.length() - 4) + ".png";
                 }
 
-                String rutaCompleta = "/Proyecto--BD/Assets/" + nombreArchivo.trim();
+                String rutaCompleta = "/Assets/" + nombreArchivo.trim();
                 URL urlRecurso = getClass().getResource(rutaCompleta);
                 
                 if (urlRecurso != null) {

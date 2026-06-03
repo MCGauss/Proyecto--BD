@@ -213,7 +213,7 @@ public class VerPartidosFrame extends JFrame {
                     }
                     
                     // Al usar getResource, busca desde la raíz del classpath del JAR/Build
-                    String rutaCompleta = "/Proyecto--BD/Assets/" + nombreArchivo.trim();
+                    String rutaCompleta = "/Assets/" + nombreArchivo.trim();
                     URL urlRecurso = getClass().getResource(rutaCompleta);
                     
                     if (urlRecurso != null) {
