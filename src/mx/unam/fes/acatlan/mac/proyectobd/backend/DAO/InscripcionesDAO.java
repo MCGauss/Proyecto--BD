@@ -113,7 +113,22 @@ public class InscripcionesDAO {
     }
     
     public boolean pagarInscripcionPorProcedimiento(int idUsuario, Integer idJornada, int idTipoInscripcion, double monto) throws SQLException {
-    	// CORRECCIÓN: Quitamos las llaves {} para invocarlo de forma nativa como PROCEDURE en PostgreSQL
+        
+        // INTEGRACIÓN DE VALIDACIÓN DE SEGURIDAD INTERNA:
+        // Verificamos si ya existe el registro de pago para no duplicar el cobro de saldo
+        boolean yaExisteInscripcion = false;
+        if (idJornada == null) {
+            yaExisteInscripcion = verificarInscripcionGlobal(idUsuario);
+        } else {
+            yaExisteInscripcion = verificarInscripcionJornada(idUsuario, idJornada);
+        }
+
+        if (yaExisteInscripcion) {
+            // Si ya está pagado en BD, omitimos el procedimiento para proteger el saldo y retornamos true
+            return true;
+        }
+
+        // Si no se ha pagado, procedemos de forma normal a invocar la rutina en PostgreSQL
         String query = "CALL sp_registrar_pago_inscripcion(?, ?, ?, ?)"; 
         
         try (java.sql.CallableStatement cstmt = conexion.prepareCall(query)) {
