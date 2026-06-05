@@ -170,6 +170,8 @@ public class InscripcionJornadaFrame extends JFrame {
         btnVolver = crearBoton("VOLVER", new Color(15, 23, 42));
         // CORRECCIÓN: Se subió el botón cambiando Y=15 (antes 35) para pegarlo más al scrollbar
         btnVolver.setBounds(690, 15, 220, 50); 
+        btnVolver.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnVolver.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         panelInferior.add(btnVolver);
 
         btnVolver.addActionListener(e -> {
@@ -221,7 +223,8 @@ public class InscripcionJornadaFrame extends JFrame {
         btnAccion.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnAccion.setForeground(Color.WHITE);
         btnAccion.setFocusPainted(false);
-        btnAccion.setBorderPainted(false);
+        btnAccion.setOpaque(true);           // <- Fuerza al renderizador de Mac a pintar el fondo
+        btnAccion.setBorderPainted(false);   // <- Elimina el borde Aqua redondeado de Apple
         btnAccion.setBounds(1160, 35, 220, 45); // X=1160 + 60 del panelContenedor = 1220 (Alineación con cabecera)
         card.add(btnAccion);
 
@@ -236,7 +239,7 @@ public class InscripcionJornadaFrame extends JFrame {
             btnAccion.setBackground(new Color(16, 185, 129));
             btnAccion.setCursor(new Cursor(Cursor.HAND_CURSOR));
             
-            btnAccion.addActionListener(e -> {
+            btnAccion.addActionListener(e -> { // Llamada al metodo pagarInscripcionPorProcedimiento
             	    int opcion = JOptionPane.showConfirmDialog(
             	        this, 
             	        "¿Deseas pagar la inscripción para la Jornada " + idJornada + "?\nCosto: $50.00", 
@@ -259,7 +262,7 @@ public class InscripcionJornadaFrame extends JFrame {
             	            );
             	            
             	            if (exito) {
-            	                usuarioSesion.setSaldo(usuarioSesion.getSaldo() - 20.00);
+            	                usuarioSesion.setSaldo(usuarioSesion.getSaldo() - 50.00);
             	                
             	                JOptionPane.showMessageDialog(
             	                    this, 
