@@ -2,6 +2,9 @@ package mx.unam.fes.acatlan.mac.proyectobd.frontend.vistas;
 
 import java.awt.*;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import javax.swing.*;
@@ -9,6 +12,7 @@ import javax.swing.border.EmptyBorder;
 
 import mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.JornadasDAO;
 import mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.TorneosDAO;
+import mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.InscripcionesDAO;
 import mx.unam.fes.acatlan.mac.proyectobd.backend.model.Usuarios;
 
 public class InscripcionJornadaFrame extends JFrame {
@@ -17,13 +21,13 @@ public class InscripcionJornadaFrame extends JFrame {
 
     // Paneles Estructurales Contenedores
     private JPanel panelCabecera;
-    private JPanel panelColumnas; // NUEVO: Barra de nombres de columnas
+    private JPanel panelColumnas; 
     private JPanel panelContenedorCards;
     private JPanel panelInferior;
 
     private JLabel lblTitulo;
     private JLabel lblSubtitulo;
-    private JLabel lblUsuarioInfo; // NUEVO: Nombre y saldo en verde
+    private JLabel lblUsuarioInfo; 
     private JScrollPane scrollPane;
     private JButton btnVolver;
 
@@ -52,7 +56,6 @@ public class InscripcionJornadaFrame extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(true);
         
-        // Estructura BorderLayout indestructible para evitar encimamientos
         setLayout(new BorderLayout());
 
         iniciarComponentes(nombreTorneo);
@@ -60,7 +63,7 @@ public class InscripcionJornadaFrame extends JFrame {
 
     private void iniciarComponentes(String nombreTorneo) {
         // ========================================================
-        // 1. CABECERA SUPERIOR (NORTE) - Modificada para incluir Saldo
+        // 1. CABECERA SUPERIOR (NORTE)
         // ========================================================
         panelCabecera = new JPanel();
         panelCabecera.setLayout(null);
@@ -79,7 +82,6 @@ public class InscripcionJornadaFrame extends JFrame {
         lblSubtitulo.setBounds(60, 90, 800, 30);
         panelCabecera.add(lblSubtitulo);
 
-        // NUEVO: Renderizado del usuario y Saldo en verde esmeralda (Alineado a la derecha)
         String saldoFormateado = String.format("$%.2f", usuarioSesion.getSaldo());
         lblUsuarioInfo = new JLabel("<html><font color='#475569'>Usuario: </font><b>" + usuarioSesion.getUsername() + "</b>"
                 + " &nbsp;&nbsp;|&nbsp;&nbsp; <font color='#475569'>Saldo disponible: </font><font color='#10B981'><b>" + saldoFormateado + "</b></font></html>");
@@ -89,24 +91,23 @@ public class InscripcionJornadaFrame extends JFrame {
         panelCabecera.add(lblUsuarioInfo);
 
         // ========================================================
-        // NUEVO: PANEL DE NOMBRES DE COLUMNAS (Alineación perfecta con las cards)
+        // PANEL DE NOMBRES DE COLUMNAS
         // ========================================================
         panelColumnas = new JPanel();
         panelColumnas.setLayout(null);
         panelColumnas.setPreferredSize(new Dimension(1600, 40));
         panelColumnas.setBackground(new Color(241, 245, 249));
 
-        // Los Bounds (X) coinciden milimétricamente con los componentes de las tarjetas de abajo
         JLabel colJornada = new JLabel("JORNADA");
         colJornada.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        colJornada.setForeground(new Color(148, 163, 184)); // Color Slate tenue de tabla
-        colJornada.setBounds(105, 10, 200, 25); // 60 de margen + 45 interno de la card
+        colJornada.setForeground(new Color(148, 163, 184)); 
+        colJornada.setBounds(105, 10, 200, 25); 
         panelColumnas.add(colJornada);
 
         JLabel colEstatus = new JLabel("ESTATUS");
         colEstatus.setFont(new Font("Segoe UI", Font.BOLD, 14));
         colEstatus.setForeground(new Color(148, 163, 184));
-        colEstatus.setBounds(445, 10, 200, 25); // Mismo X donde inicia lblEstado
+        colEstatus.setBounds(445, 10, 200, 25); 
         panelColumnas.add(colEstatus);
 
         JLabel colDescripcion = new JLabel("DETALLE");
@@ -119,10 +120,9 @@ public class InscripcionJornadaFrame extends JFrame {
         colAccion.setFont(new Font("Segoe UI", Font.BOLD, 14));
         colAccion.setForeground(new Color(148, 163, 184));
         colAccion.setHorizontalAlignment(SwingConstants.CENTER);
-        colAccion.setBounds(1220, 10, 220, 25); // Mismo X y Ancho que el botón de acción
+        colAccion.setBounds(1220, 10, 220, 25); 
         panelColumnas.add(colAccion);
 
-        // Agrupamos la cabecera y las columnas en un subpanel Norte para mantener el BorderLayout limpio
         JPanel contenedorNorte = new JPanel(new BorderLayout());
         contenedorNorte.add(panelCabecera, BorderLayout.NORTH);
         contenedorNorte.add(panelColumnas, BorderLayout.SOUTH);
@@ -136,7 +136,6 @@ public class InscripcionJornadaFrame extends JFrame {
         panelContenedorCards.setBackground(new Color(241, 245, 249));
         panelContenedorCards.setBorder(new EmptyBorder(10, 60, 10, 60));
 
-        // Consulta analítica de estatus a la BD
         JornadasDAO jornadasDAO = new JornadasDAO(conexion);
         List<Map<String, String>> listaJornadas = jornadasDAO.obtenerJornadasConEstatusCalculado(idTorneoActivo);
 
@@ -149,7 +148,7 @@ public class InscripcionJornadaFrame extends JFrame {
         } else {
             for (Map<String, String> j : listaJornadas) {
                 panelContenedorCards.add(crearCardJornada(j));
-                panelContenedorCards.add(Box.createRigidArea(new Dimension(0, 20))); // Separación simétrica
+                panelContenedorCards.add(Box.createRigidArea(new Dimension(0, 20))); 
             }
         }
 
@@ -163,15 +162,13 @@ public class InscripcionJornadaFrame extends JFrame {
         // ========================================================
         panelInferior = new JPanel();
         panelInferior.setLayout(null);
-        // CORRECCIÓN: Se redujo la altura del panel a 85 (antes 120) para compactar el espacio inferior
         panelInferior.setPreferredSize(new Dimension(1300, 75));
         panelInferior.setBackground(new Color(241, 245, 249));
 
         btnVolver = crearBoton("VOLVER", new Color(15, 23, 42));
-        // CORRECCIÓN: Se subió el botón cambiando Y=15 (antes 35) para pegarlo más al scrollbar
         btnVolver.setBounds(690, 15, 220, 50); 
-        btnVolver.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
-        btnVolver.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
+        btnVolver.setOpaque(true);           
+        btnVolver.setBorderPainted(false);   
         panelInferior.add(btnVolver);
 
         btnVolver.addActionListener(e -> {
@@ -182,9 +179,6 @@ public class InscripcionJornadaFrame extends JFrame {
         add(panelInferior, BorderLayout.AFTER_LAST_LINE);
     }
 
-    // ========================================================
-    // CONSTRUCCIÓN DINÁMICA DE LA CARD SEGÚN EL ESTATUS DE LA BD
-    // ========================================================
     private JPanel crearCardJornada(Map<String, String> datosJornada) {
         int idJornada = Integer.parseInt(datosJornada.get("id_jornada"));
         String nombreJornada = datosJornada.get("nombre_jornada").toUpperCase();
@@ -195,22 +189,19 @@ public class InscripcionJornadaFrame extends JFrame {
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createLineBorder(new Color(226, 232, 240), 1));
         
-        // Dimensiones estrictas para el BoxLayout vertical
         card.setMinimumSize(new Dimension(1430, 120));
         card.setMaximumSize(new Dimension(1430, 120));
         card.setPreferredSize(new Dimension(1430, 120));
 
-        // Nombre de la Jornada
         JLabel lblNombre = new JLabel(nombreJornada);
         lblNombre.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblNombre.setForeground(new Color(15, 23, 42));
-        lblNombre.setBounds(45, 40, 300, 40); // Ajustado a X=45 para alineación con título
+        lblNombre.setBounds(45, 40, 300, 40); 
         card.add(lblNombre);
 
-        // Etiquetas de estado
         JLabel lblEstado = new JLabel();
         lblEstado.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lblEstado.setBounds(385, 40, 250, 40); // Ajustado a X=385
+        lblEstado.setBounds(385, 40, 250, 40); 
         card.add(lblEstado);
 
         JLabel lblDetalle = new JLabel("Fase regular de grupos");
@@ -223,91 +214,112 @@ public class InscripcionJornadaFrame extends JFrame {
         btnAccion.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnAccion.setForeground(Color.WHITE);
         btnAccion.setFocusPainted(false);
-        btnAccion.setOpaque(true);           // <- Fuerza al renderizador de Mac a pintar el fondo
-        btnAccion.setBorderPainted(false);   // <- Elimina el borde Aqua redondeado de Apple
-        btnAccion.setBounds(1160, 35, 220, 45); // X=1160 + 60 del panelContenedor = 1220 (Alineación con cabecera)
+        btnAccion.setOpaque(true);           
+        btnAccion.setBorderPainted(false);   
+        btnAccion.setBounds(1160, 35, 220, 45); 
         card.add(btnAccion);
 
-        // APLICACIÓN DE REGLAS DE NEGOCIO EN BASE AL ESTATUS CALCULADO
         switch (estatus) {
         
-        case "DISPONIBLE":
-            lblEstado.setText("DISPONIBLE");
-            lblEstado.setForeground(new Color(16, 185, 129)); // Verde Emerald
-            
-            btnAccion.setText("PAGAR INSCRIPCIÓN");
-            btnAccion.setBackground(new Color(16, 185, 129));
-            btnAccion.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            
-            btnAccion.addActionListener(e -> { // Llamada al metodo pagarInscripcionPorProcedimiento
-            	    int opcion = JOptionPane.showConfirmDialog(
-            	        this, 
-            	        "¿Deseas pagar la inscripción para la Jornada " + idJornada + "?\nCosto: $50.00", 
-            	        "Confirmar Pago", 
-            	        JOptionPane.YES_NO_OPTION, 
-            	        JOptionPane.QUESTION_MESSAGE
-            	    );
-            	    
-            	    if (opcion == JOptionPane.YES_OPTION) {
-            	        try {
-            	            mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.InscripcionesDAO inscripcionesDAO = 
-            	                new mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.InscripcionesDAO(conexion);
-            	            
-            	            // LLAMADA AL PROCEDIMIENTO: idUsuario, idJornada actual, tipoInscripcion = 1 (Jornada), monto = 50.00
-            	            boolean exito = inscripcionesDAO.pagarInscripcionPorProcedimiento(
-            	                usuarioSesion.getIdUsuario(), 
-            	                idJornada, 
-            	                1, 
-            	                50.00
-            	            );
-            	            
-            	            if (exito) {
-            	                usuarioSesion.setSaldo(usuarioSesion.getSaldo() - 50.00);
-            	                
-            	                JOptionPane.showMessageDialog(
-            	                    this, 
-            	                    "¡Inscripción generada con éxito!\nSe han descontado $50.00 de tu saldo.", 
-            	                    "Pago Exitoso", 
-            	                    JOptionPane.INFORMATION_MESSAGE
-            	                );
-            	                
-            	                new QuinielaFrame(conexion, usuarioSesion, idJornada).setVisible(true);
-            	                dispose();
-            	            }
-            	            
-            	        } catch (java.sql.SQLException ex) {
-            	            String mensajeError = ex.getMessage();
-            	            if (mensajeError.contains("ERROR:")) {
-            	                int inicio = mensajeError.indexOf("ERROR:") + 6;
-            	                int fin = mensajeError.indexOf("\n", inicio);
-            	                mensajeError = (fin != -1) ? mensajeError.substring(inicio, fin).trim() : mensajeError.substring(inicio).trim();
-            	            }
-            	            JOptionPane.showMessageDialog(this, "Transacción Personalizada:\n" + mensajeError, "Validación de la Base de Datos", JOptionPane.WARNING_MESSAGE);
-            	        }
-            	    }
-            	});
-            break;
-            
+            case "DISPONIBLE":
+                InscripcionesDAO inscripcionesDAO = new InscripcionesDAO(conexion);
+                boolean yaInscrito = inscripcionesDAO.verificarInscripcionJornada(usuarioSesion.getIdUsuario(), idJornada);
+
+                if (yaInscrito) {
+                    lblEstado.setText("INSCRITO");
+                    lblEstado.setForeground(new Color(37, 99, 235)); 
+
+                    boolean tienePredicciones = verificarSiTienePredicciones(usuarioSesion.getIdUsuario(), idJornada);
+
+                    if (!tienePredicciones) {
+                        btnAccion.setText("REGISTRAR PREDICCIÓN");
+                        btnAccion.setBackground(new Color(37, 99, 235)); 
+                        btnAccion.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                        btnAccion.addActionListener(e -> {
+                            new QuinielaFrame(conexion, usuarioSesion, idJornada).setVisible(true);
+                            dispose();
+                        });
+                    } else {
+                        btnAccion.setText("VER PARTIDOS");
+                        btnAccion.setBackground(new Color(59, 130, 246)); 
+                        btnAccion.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                        btnAccion.addActionListener(e -> {
+                            new VerPartidosFrame(conexion, usuarioSesion, idJornada).setVisible(true);
+                        });
+                    }
+                } else {
+                    lblEstado.setText("DISPONIBLE");
+                    lblEstado.setForeground(new Color(16, 185, 129)); 
+                    
+                    btnAccion.setText("PAGAR INSCRIPCIÓN");
+                    btnAccion.setBackground(new Color(16, 185, 129));
+                    btnAccion.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                    
+                    btnAccion.addActionListener(e -> { 
+                        int opcion = JOptionPane.showConfirmDialog(
+                            this, 
+                            "¿Deseas pagar la inscripción para la Jornada " + idJornada + "?\nCosto: $50.00", 
+                            "Confirmar Pago", 
+                            JOptionPane.YES_NO_OPTION, 
+                            JOptionPane.QUESTION_MESSAGE
+                        );
+                        
+                        if (opcion == JOptionPane.YES_OPTION) {
+                            try {
+                                boolean exito = inscripcionesDAO.pagarInscripcionPorProcedimiento(
+                                    usuarioSesion.getIdUsuario(), 
+                                    idJornada, 
+                                    1, 
+                                    50.00
+                                );
+                                
+                                if (exito) {
+                                    usuarioSesion.setSaldo(usuarioSesion.getSaldo() - 50.00);
+                                    
+                                    JOptionPane.showMessageDialog(
+                                        this, 
+                                        "¡Inscripción generada con éxito!\nSe han descontado $50.00 de tu saldo.", 
+                                        "Pago Exitoso", 
+                                        JOptionPane.INFORMATION_MESSAGE
+                                    );
+                                    
+                                    new QuinielaFrame(conexion, usuarioSesion, idJornada).setVisible(true);
+                                    dispose();
+                                }
+                                
+                            } catch (java.sql.SQLException ex) {
+                                String mensajeError = ex.getMessage();
+                                if (mensajeError.contains("ERROR:")) {
+                                    int inicio = mensajeError.indexOf("ERROR:") + 6;
+                                    int fin = mensajeError.indexOf("\n", inicio);
+                                    mensajeError = (fin != -1) ? mensajeError.substring(inicio, fin).trim() : mensajeError.substring(inicio).trim();
+                                }
+                                JOptionPane.showMessageDialog(this, "Transacción Personalizada:\n" + mensajeError, "Validación de la Base de Datos", JOptionPane.WARNING_MESSAGE);
+                            }
+                        }
+                    });
+                }
+                break;
+                
             case "EN CURSO":
                 lblEstado.setText("EN CURSO / EN JUEGO");
-                lblEstado.setForeground(new Color(245, 158, 11)); // Ámbar/Naranja
+                lblEstado.setForeground(new Color(245, 158, 11)); 
                 
                 btnAccion.setText("VER PARTIDOS");
-                btnAccion.setBackground(new Color(59, 130, 246)); // Azul
+                btnAccion.setBackground(new Color(59, 130, 246)); 
                 btnAccion.setCursor(new Cursor(Cursor.HAND_CURSOR));
                 
                 btnAccion.addActionListener(e -> {
                     new VerPartidosFrame(conexion, usuarioSesion, idJornada).setVisible(true);
-                    // dispose();
                 });
                 break;
 
             case "FINALIZADA":
                 lblEstado.setText("FINALIZADA");
-                lblEstado.setForeground(new Color(239, 68, 68)); // Rojo
+                lblEstado.setForeground(new Color(239, 68, 68)); 
                 
                 btnAccion.setText("CERRADA");
-                btnAccion.setBackground(new Color(100, 116, 139)); // Gris Slate neutro
+                btnAccion.setBackground(new Color(100, 116, 139)); 
                 btnAccion.setEnabled(false);
                 break;
 
@@ -321,6 +333,26 @@ public class InscripcionJornadaFrame extends JFrame {
         }
 
         return card;
+    }
+
+    private boolean verificarSiTienePredicciones(int idUsuario, int idJornada) {
+        // CORRECCIÓN FINAL: Apuntando exactamente a "predicciones" con validación estricta de marcadores asentados
+        String query = "SELECT COUNT(*) FROM predicciones p " +
+                       "JOIN partido part ON p.id_partido = part.id_partido " +
+                       "WHERE p.id_usuario = ? AND part.id_jornada = ? " +
+                       "AND p.pred_goles_local IS NOT NULL AND p.pred_goles_vis IS NOT NULL;";
+        try (PreparedStatement ps = conexion.prepareStatement(query)) {
+            ps.setInt(1, idUsuario);
+            ps.setInt(2, idJornada);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     private JButton crearBoton(String texto, Color color) {

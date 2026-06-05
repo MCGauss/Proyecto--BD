@@ -105,7 +105,8 @@ public class VerPartidosFrame extends JFrame {
         btnVolver.setForeground(Color.WHITE);
         btnVolver.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnVolver.setFocusPainted(false);
-        btnVolver.setBorderPainted(false);
+        btnVolver.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnVolver.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         btnVolver.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         // Evento de navegación seguro para regresar al menú anterior
