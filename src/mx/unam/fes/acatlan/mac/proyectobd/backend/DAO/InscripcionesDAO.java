@@ -113,7 +113,8 @@ public class InscripcionesDAO {
     }
     
     public boolean pagarInscripcionPorProcedimiento(int idUsuario, Integer idJornada, int idTipoInscripcion, double monto) throws SQLException {
-        String query = "{CALL sp_registrar_pago_inscripcion(?, ?, ?, ?)}";
+    	// CORRECCIÓN: Quitamos las llaves {} para invocarlo de forma nativa como PROCEDURE en PostgreSQL
+        String query = "CALL sp_registrar_pago_inscripcion(?, ?, ?, ?)"; 
         
         try (java.sql.CallableStatement cstmt = conexion.prepareCall(query)) {
             cstmt.setInt(1, idUsuario);
