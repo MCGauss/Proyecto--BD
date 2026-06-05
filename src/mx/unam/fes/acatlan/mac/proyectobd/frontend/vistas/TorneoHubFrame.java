@@ -141,7 +141,7 @@ public class TorneoHubFrame extends JFrame {
             dispose();
         });
 
-        btnPagar.addActionListener(e -> {
+        btnPagar.addActionListener(e -> { // Llamada al metodo pagarInscripcionPorProcedimiento
             int opcion = JOptionPane.showConfirmDialog(
                 this, 
                 "¿Deseas pagar la inscripción para el Torneo? \n" + "\nCosto: $500.00", 
