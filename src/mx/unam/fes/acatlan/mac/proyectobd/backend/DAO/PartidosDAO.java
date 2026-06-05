@@ -33,14 +33,17 @@ public class PartidosDAO {
         List<Partido> lista = new ArrayList<>();
         
         // QUERY CORREGIDO: Trae los nombres y logos reales usando alias claros
-        String query = "SELECT p.id_partido, p.goles_eq_local, p.goles_eq_vis, p.id_eq_local, p.id_eq_vis, " +
-                       "el.nombre_equipo AS local_nombre, el.logo AS local_logo, " +
-                       "ev.nombre_equipo AS vis_nombre, ev.logo AS vis_logo " +
-                       "FROM partido p " +
-                       "INNER JOIN equipos el ON p.id_eq_local = el.id_equipo " +
-                       "INNER JOIN equipos ev ON p.id_eq_vis = ev.id_equipo " +
-                       "WHERE p.id_jornada = ? " +
-                       "ORDER BY p.id_partido ASC;";
+        String query = 
+        		"SELECT p.id_partido, p.id_jornada, p.id_eq_local, p.id_eq_vis, " +
+                "p.goles_eq_local, p.goles_eq_vis, p.fecha_hora_prog, p.id_status_partido, " +
+                "el.nombre_equipo AS local_nombre, el.logo AS local_logo, " + 
+                "ev.nombre_equipo AS vis_nombre, ev.logo AS vis_logo " +   
+                "FROM partido p " + 
+                "INNER JOIN jornadas j ON p.id_jornada = j.id_jornada " + 
+                "INNER JOIN equipos el ON p.id_eq_local = el.id_equipo " + 
+                "INNER JOIN equipos ev ON p.id_eq_vis = ev.id_equipo " + 
+                "WHERE p.id_jornada = ? " + // <-- CORREGIDO: Filtrar por jornada
+                "ORDER BY p.fecha_hora_prog ASC;";
         
 
         try (PreparedStatement pstmt = conexion.prepareStatement(query)) {
@@ -120,15 +123,16 @@ public class PartidosDAO {
     public List<Partido> obtenerPartidosPorTorneo(int idTorneo) {
         List<Partido> lista = new ArrayList<>();
         String query = 
-            "SELECT p.id_partido, p.id_jornada, p.id_eq_local, p.id_eq_vis, " +
-            "       p.goles_eq_local, p.goles_eq_vis, p.fecha_hora_prog, p.id_status_partido, " +
-            "       el.nombre_equipo AS local_nombre, ev.nombre_equipo AS vis_nombre " +
-            "FROM partido p " +
-            "INNER JOIN jornadas j ON p.id_jornada = j.id_jornada " +
-            "INNER JOIN equipos el ON p.id_eq_local = el.id_equipo " +
-            "INNER JOIN equipos ev ON p.id_eq_vis = ev.id_equipo " +
-            "WHERE j.id_torneo = ? " +
-            "ORDER BY j.id_jornada ASC, p.fecha_hora_prog ASC;";
+                "SELECT p.id_partido, p.id_jornada, p.id_eq_local, p.id_eq_vis, " +
+                "p.goles_eq_local, p.goles_eq_vis, p.fecha_hora_prog, p.id_status_partido, " +
+                "el.nombre_equipo AS local_nombre, el.logo AS local_logo, " + // <-- Corregido
+                "ev.nombre_equipo AS vis_nombre, ev.logo AS vis_logo " +   // <-- Corregido
+                "FROM partido p " + 
+                "INNER JOIN jornadas j ON p.id_jornada = j.id_jornada " + 
+                "INNER JOIN equipos el ON p.id_eq_local = el.id_equipo " + 
+                "INNER JOIN equipos ev ON p.id_eq_vis = ev.id_equipo " + 
+                "WHERE j.id_torneo = ? " + 
+                "ORDER BY j.id_jornada ASC, p.fecha_hora_prog ASC;";
 
         try (PreparedStatement pstmt = conexion.prepareStatement(query)) {
             pstmt.setInt(1, idTorneo);

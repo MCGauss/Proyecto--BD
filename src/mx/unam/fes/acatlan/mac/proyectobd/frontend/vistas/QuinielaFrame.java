@@ -159,7 +159,6 @@ public class QuinielaFrame extends JFrame {
         add(panelPrincipal);
     }
 
- // 1. Modificación dentro de crearCardPartido para asegurar la lectura de nombres
     private JPanel crearCardPartido(Partido partido) {
         JPanel card = new JPanel();
         card.setLayout(null);
@@ -172,11 +171,10 @@ public class QuinielaFrame extends JFrame {
         String nombreLocal = (partido.getEquipoLocal() != null) ? partido.getEquipoLocal().getNombreEquipo() : "Equipo Local";
         String logoLocal = partido.getEquipoLocal().getLogoURL();
         
-        // Generar icono (con iniciales de respaldo si es .eps o null)
+        // Generar icono unificado (con iniciales de respaldo si no existe o es nulo)
         ImageIcon iconoLocal = obtenerIconoOIniciales(logoLocal, nombreLocal, 65, 65);
 
         JLabel lblLogoLocal = new JLabel(iconoLocal);
-        lblLogoLocal.setIcon(obtenerIconoRedondeado(logoLocal, 65, 65));
         lblLogoLocal.setBounds(40, 27, 65, 65);
         card.add(lblLogoLocal);
 
@@ -186,7 +184,7 @@ public class QuinielaFrame extends JFrame {
         lblNombreLocal.setBounds(125, 40, 320, 35);
         card.add(lblNombreLocal);
 
-        // [Aquí se mantienen exactamente iguales tus componentes intermedios: Spinners y el "VS"]
+        // Componentes de Marcadores: Spinners y "VS"
         SpinnerModel modelLocal = new SpinnerNumberModel(0, 0, 99, 1);
         JSpinner spinGolesLocal = new JSpinner(modelLocal);
         spinGolesLocal.setFont(new Font("Segoe UI", Font.BOLD, 22));
@@ -216,12 +214,10 @@ public class QuinielaFrame extends JFrame {
         }
         card.add(spinGolesVis);
         spinnersGolesVis.add(spinGolesVis);
-        // [Fin del bloque de spinners]
 
         // Datos del Equipo Visitante reales del DAO
         String nombreVis = (partido.getEquipoVisitante() != null) ? partido.getEquipoVisitante().getNombreEquipo() : "Equipo Visitante";
         String logoVis = partido.getEquipoVisitante().getLogoURL();
-        
         
         ImageIcon iconoVis = obtenerIconoOIniciales(logoVis, nombreVis, 65, 65);
 
@@ -232,42 +228,50 @@ public class QuinielaFrame extends JFrame {
         card.add(lblNombreVis);
 
         JLabel lblLogoVis = new JLabel(iconoVis);
-        lblLogoVis.setIcon(obtenerIconoRedondeado(logoVis, 65, 65));
         lblLogoVis.setBounds(1280, 27, 65, 65);
         card.add(lblLogoVis);
 
         return card;
     }
 
-    // 2. Nuevo método inteligente de renderizado que procesa fallbacks y crea iniciales elegantes
     private ImageIcon obtenerIconoOIniciales(String nombreArchivo, String nombreEquipo, int ancho, int alto) {
         try {
-            // Intentar cargar si no es un vector .eps y la ruta existe
-            if (nombreArchivo != null && !nombreArchivo.trim().isEmpty() && !nombreArchivo.toLowerCase().endsWith(".eps")) {
-                String rutaCompleta = "/Assets/" + nombreArchivo.trim();
-                URL urlRecurso = getClass().getResource(rutaCompleta);
-                if (urlRecurso != null) {
-                    ImageIcon iconoOriginal = new ImageIcon(urlRecurso);
+            if (nombreArchivo != null && !nombreArchivo.trim().isEmpty()) {
+                // Forzar cambio de extensión si la BD tiene remanentes del formato vectorial .eps
+                if (nombreArchivo.toLowerCase().endsWith(".eps")) {
+                    nombreArchivo = nombreArchivo.substring(0, nombreArchivo.length() - 4) + ".png";
+                }
+
+                // CORRECCIÓN RADICAL: Quitar diagonales iniciales si existen y buscar relativo a la raíz del proyecto
+                String nombreLimpio = nombreArchivo.trim().replaceFirst("^/", "");
+                String rutaFisica = "Assets/" + nombreLimpio;
+                
+                java.io.File archivo = new java.io.File(rutaFisica);
+                
+                if (archivo.exists()) {
+                    // Si el archivo existe en la carpeta Assets de la raíz del proyecto, lo cargamos directamente
+                    ImageIcon iconoOriginal = new ImageIcon(archivo.getAbsolutePath());
                     Image imgEscalada = iconoOriginal.getImage().getScaledInstance(ancho, alto, Image.SCALE_SMOOTH);
                     return new ImageIcon(imgEscalada);
+                } else {
+                    // Esto saldrá en la consola de Eclipse para ayudarte a saber qué texto exacto está buscando
+                    System.err.println("QuinielaFrame: Archivo físico no hallado en: " + archivo.getAbsolutePath());
                 }
             }
         } catch (Exception ex) {
-            // Fallback silencioso
+            System.err.println("Error al procesar el renderizado del logo: " + ex.getMessage());
         }
 
         /*
-         *  UTILERÍA VISUAL: Generar un escudo circular plano con las iniciales si el archivo es .eps o no existe
+         * UTILERÍA VISUAL: Generar un escudo circular plano con las iniciales si el archivo físico no existe
          */
         BufferedImage fallback = new BufferedImage(ancho, alto, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = fallback.createGraphics();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
-        // Color de fondo tipo Slate/Indigo universitario muy estético
         g2.setColor(new Color(30, 41, 59));
         g2.fillOval(0, 0, ancho, alto);
         
-        // Obtener las iniciales del nombre del equipo (Ej: "Pumas UNAM" -> "PU", "América" -> "AM")
         String iniciales = "";
         if (nombreEquipo != null && !nombreEquipo.trim().isEmpty()) {
             String[] partes = nombreEquipo.trim().split(" ");
@@ -275,14 +279,13 @@ public class QuinielaFrame extends JFrame {
             if (partes.length > 1 && partes[1].length() > 0) {
                 iniciales += partes[1].charAt(0);
             } else if (partes[0].length() > 1) {
-                iniciales += partes[0].charAt(1); // Segunda letra de la palabra si es una sola
+                iniciales += partes[0].charAt(1); 
             }
         } else {
             iniciales = "EQ";
         }
         iniciales = iniciales.toUpperCase();
 
-        // Dibujar texto centrado en el círculo
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("Segoe UI", Font.BOLD, 22));
         FontMetrics fm = g2.getFontMetrics();
@@ -337,39 +340,6 @@ public class QuinielaFrame extends JFrame {
         } finally {
             try { conexion.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
         }
-    }
-
-    private ImageIcon obtenerIconoRedondeado(String nombreArchivo, int anchoDeseado, int altoDeseado) {
-        try {
-            if (nombreArchivo != null && !nombreArchivo.trim().isEmpty()) {
-                // Forzado de extensión por si queda algún rastro en el LDD viejo
-                if (nombreArchivo.toLowerCase().endsWith(".eps")) {
-                    nombreArchivo = nombreArchivo.substring(0, nombreArchivo.length() - 4) + ".png";
-                }
-
-                String rutaCompleta = "/Proyecto--BD/Assets/" + nombreArchivo.trim();
-                URL urlRecurso = getClass().getResource(rutaCompleta);
-                
-                if (urlRecurso != null) {
-                    ImageIcon iconoOriginal = new ImageIcon(urlRecurso);
-                    Image imgEscalada = iconoOriginal.getImage().getScaledInstance(anchoDeseado, altoDeseado, Image.SCALE_SMOOTH);
-                    return new ImageIcon(imgEscalada);
-                } else {
-                    System.err.println("QuinielaFrame: Archivo no encontrado en " + rutaCompleta);
-                }
-            }
-        } catch (Exception ex) {
-            // Failsafe silencioso
-        }
-
-        // Círculo plano de Fallback estético (Gris elegante) por si no encuentra la imagen física
-        BufferedImage fallback = new BufferedImage(anchoDeseado, altoDeseado, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2 = fallback.createGraphics();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setColor(new Color(203, 213, 225));
-        g2.fillOval(0, 0, anchoDeseado, altoDeseado);
-        g2.dispose();
-        return new ImageIcon(fallback);
     }
 
     private JButton crearBoton(String texto, Color color) {
