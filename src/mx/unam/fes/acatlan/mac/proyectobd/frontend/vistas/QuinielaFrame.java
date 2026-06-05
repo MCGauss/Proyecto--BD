@@ -61,7 +61,7 @@ public class QuinielaFrame extends JFrame {
         this.spinnersGolesLocal = new ArrayList<>();
         this.spinnersGolesVis = new ArrayList<>();
 
-        setTitle("Captura de Pronósticos - Quiniela FES Acatlán");
+        setTitle("Captura de Pronósticos");
         setSize(1550, 900); // Dimensiones ajustadas para evitar desbordamientos
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

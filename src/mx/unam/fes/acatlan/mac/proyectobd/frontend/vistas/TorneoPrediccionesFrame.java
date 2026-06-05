@@ -127,7 +127,7 @@ public class TorneoPrediccionesFrame extends JFrame {
         panelInferior.setPreferredSize(new Dimension(1600, 120));
         panelInferior.setBackground(new Color(241, 245, 249));
 
-        btnVolver = crearBoton("VOLVER AL MENÚ", new Color(15, 23, 42));
+        btnVolver = crearBoton("VOLVER", new Color(15, 23, 42));
         // Centrado matemático perfecto dentro del ancho estándar del frame (1600)
         btnVolver.setBounds(690, 35, 220, 50); 
         panelInferior.add(btnVolver);
