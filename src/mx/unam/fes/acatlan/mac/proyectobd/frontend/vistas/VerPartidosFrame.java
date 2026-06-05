@@ -110,7 +110,7 @@ public class VerPartidosFrame extends JFrame {
 
         // Evento de navegación seguro para regresar al menú anterior
         btnVolver.addActionListener(e -> {
-            new TorneoPrediccionesFrame(conexion, usuarioSesion).setVisible(true);
+            new JornadaHubFrame(conexion, usuarioSesion).setVisible(true);
             dispose();
         });
 
@@ -147,8 +147,6 @@ public class VerPartidosFrame extends JFrame {
                         case POSPUESTO  -> fila[4] = "POSPUESTO";
                         default         -> fila[4] = "DESCONOCIDO";
                     }
-                } else {
-                    fila[4] = "DESCONOCIDO";
                 }
                 
                 modelo.addRow(fila);
@@ -206,14 +204,9 @@ public class VerPartidosFrame extends JFrame {
 
         private ImageIcon cargarImagenPNG(String nombreArchivo, int ancho, int alto) {
             try {
-                if (nombreArchivo != null && !nombreArchivo.trim().isEmpty()) {
-                    // Si el String viene de la BD con extensión .eps, la forzamos a .png
-                    if (nombreArchivo.toLowerCase().endsWith(".eps")) {
-                        nombreArchivo = nombreArchivo.substring(0, nombreArchivo.length() - 4) + ".png";
-                    }
-                    
+                if (nombreArchivo != null && !nombreArchivo.trim().isEmpty()) {            
                     // Al usar getResource, busca desde la raíz del classpath del JAR/Build
-                    String rutaCompleta = "/Proyecto--BD/Assets/" + nombreArchivo.trim();
+                    String rutaCompleta = "/Assets/" + nombreArchivo.trim();
                     URL urlRecurso = getClass().getResource(rutaCompleta);
                     
                     if (urlRecurso != null) {

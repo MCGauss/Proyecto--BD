@@ -93,7 +93,7 @@ public class JornadaHubFrame extends JFrame {
         cardProxima = crearCard(
                 "PRÓXIMA JORNADA",
                 textoProximaFinal, // Usamos la variable final segura
-                "Inscripciones abiertas.\nCosto de entrada: $100.00 MXN",
+                "Inscripciones abiertas.\nCosto de entrada: $50.00 MXN",
                 new Color(16, 185, 129)
         );
         cardProxima.setBounds(510, 120, 410, 340);

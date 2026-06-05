@@ -111,6 +111,27 @@ public class InscripcionesDAO {
         }
         return false;
     }
+    
+    public boolean pagarInscripcionPorProcedimiento(int idUsuario, Integer idJornada, int idTipoInscripcion, double monto) throws SQLException {
+        String query = "{CALL sp_registrar_pago_inscripcion(?, ?, ?, ?)}";
+        
+        try (java.sql.CallableStatement cstmt = conexion.prepareCall(query)) {
+            cstmt.setInt(1, idUsuario);
+            
+            // Manejo de nulos por si es inscripción global de Torneo
+            if (idJornada == null) {
+                cstmt.setNull(2, java.sql.Types.INTEGER);
+            } else {
+                cstmt.setInt(2, idJornada);
+            }
+            
+            cstmt.setInt(3, idTipoInscripcion);
+            cstmt.setBigDecimal(4, java.math.BigDecimal.valueOf(monto));
+            
+            cstmt.execute();
+            return true;
+        }
+    }
 
     /**
      * SELECT: Obtiene el historial de todas las inscripciones de un usuario.

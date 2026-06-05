@@ -227,23 +227,64 @@ public class InscripcionJornadaFrame extends JFrame {
 
         // APLICACIÓN DE REGLAS DE NEGOCIO EN BASE AL ESTATUS CALCULADO
         switch (estatus) {
-            case "DISPONIBLE":
-                lblEstado.setText("DISPONIBLE / ABIERTA");
-                lblEstado.setForeground(new Color(16, 185, 129)); // Esmeralda
-                
-                btnAccion.setText("PAGAR");
-                btnAccion.setBackground(new Color(16, 185, 129));
-                btnAccion.setCursor(new Cursor(Cursor.HAND_CURSOR));
-              
-                btnAccion.addActionListener(e -> {
-                	//validar que tienes saldo suficiente y si es así, generar una inscripción (un insert into inscripciones para el usuario que se inscribió)
-                    new QuinielaFrame(conexion, usuarioSesion, idJornada).setVisible(true);
-                    dispose();
-                  //saldo suficiente hace el insert a la tabla de inscripciones -> frame quiniela
-                    // si no hoy salado suficeinte mandar mensaje
-                });
-                break;
-
+        
+        case "DISPONIBLE":
+            lblEstado.setText("DISPONIBLE");
+            lblEstado.setForeground(new Color(16, 185, 129)); // Verde Emerald
+            
+            btnAccion.setText("PAGAR INSCRIPCIÓN");
+            btnAccion.setBackground(new Color(16, 185, 129));
+            btnAccion.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            
+            btnAccion.addActionListener(e -> {
+            	    int opcion = JOptionPane.showConfirmDialog(
+            	        this, 
+            	        "¿Deseas pagar la inscripción para la Jornada " + idJornada + "?\nCosto: $50.00", 
+            	        "Confirmar Pago", 
+            	        JOptionPane.YES_NO_OPTION, 
+            	        JOptionPane.QUESTION_MESSAGE
+            	    );
+            	    
+            	    if (opcion == JOptionPane.YES_OPTION) {
+            	        try {
+            	            mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.InscripcionesDAO inscripcionesDAO = 
+            	                new mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.InscripcionesDAO(conexion);
+            	            
+            	            // LLAMADA AL PROCEDIMIENTO: idUsuario, idJornada actual, tipoInscripcion = 1 (Jornada), monto = 50.00
+            	            boolean exito = inscripcionesDAO.pagarInscripcionPorProcedimiento(
+            	                usuarioSesion.getIdUsuario(), 
+            	                idJornada, 
+            	                1, 
+            	                50.00
+            	            );
+            	            
+            	            if (exito) {
+            	                usuarioSesion.setSaldo(usuarioSesion.getSaldo() - 20.00);
+            	                
+            	                JOptionPane.showMessageDialog(
+            	                    this, 
+            	                    "¡Inscripción generada con éxito!\nSe han descontado $50.00 de tu saldo.", 
+            	                    "Pago Exitoso", 
+            	                    JOptionPane.INFORMATION_MESSAGE
+            	                );
+            	                
+            	                new QuinielaFrame(conexion, usuarioSesion, idJornada).setVisible(true);
+            	                dispose();
+            	            }
+            	            
+            	        } catch (java.sql.SQLException ex) {
+            	            String mensajeError = ex.getMessage();
+            	            if (mensajeError.contains("ERROR:")) {
+            	                int inicio = mensajeError.indexOf("ERROR:") + 6;
+            	                int fin = mensajeError.indexOf("\n", inicio);
+            	                mensajeError = (fin != -1) ? mensajeError.substring(inicio, fin).trim() : mensajeError.substring(inicio).trim();
+            	            }
+            	            JOptionPane.showMessageDialog(this, "Transacción Personalizada:\n" + mensajeError, "Validación de la Base de Datos", JOptionPane.WARNING_MESSAGE);
+            	        }
+            	    }
+            	});
+            break;
+            
             case "EN CURSO":
                 lblEstado.setText("EN CURSO / EN JUEGO");
                 lblEstado.setForeground(new Color(245, 158, 11)); // Ámbar/Naranja

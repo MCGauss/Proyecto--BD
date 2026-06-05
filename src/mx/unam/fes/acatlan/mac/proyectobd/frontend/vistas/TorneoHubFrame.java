@@ -16,7 +16,7 @@ public class TorneoHubFrame extends JFrame {
     JLabel lblTitulo;
     JPanel cardPanel;
     JButton btnEntrar;
-    JButton btnRanking;
+    JButton btnPagar;
     JButton btnVolver;
 
     // ATRIBUTOS DE CONEXIÓN Y SESIÓN ACTIVA
@@ -90,9 +90,9 @@ public class TorneoHubFrame extends JFrame {
 
         // DESCRIPCIÓN FIJA
         JTextArea descripcion = new JTextArea(
-                "Inscríbete para participar a lo largo de todo el torneo.\n" +
                 "Pronostica todos los partidos y acumula puntos en la tabla general.\n" +
-                "¡El jugador con más puntos al final se lleva la bolsa acumulada!"
+                "¡El jugador con más puntos al final se lleva la bolsa acumulada!\n" +
+                "Costo de entrada: $500.00"
         );
         descripcion.setEditable(false);
         descripcion.setOpaque(false);
@@ -111,11 +111,11 @@ public class TorneoHubFrame extends JFrame {
         btnEntrar.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
         cardPanel.add(btnEntrar);
 
-        btnRanking = crearBoton("VER RANKING", new Color(15, 23, 42));
-        btnRanking.setBounds(450, 280, 200, 45); // Se posiciona en la mitad derecha del bloque central
-        btnRanking.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
-        btnRanking.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
-        cardPanel.add(btnRanking);
+        btnPagar = crearBoton("PAGAR INSCRIPCIÓN", new Color(15, 23, 42));
+        btnPagar.setBounds(450, 280, 200, 45); // Se posiciona en la mitad derecha del bloque central
+        btnPagar.setOpaque(true);           // <- Obliga a pintar el fondo en Mac
+        btnPagar.setBorderPainted(false);   // <- Quita el borde Aqua nativo de Mac
+        cardPanel.add(btnPagar);
 
         panelPrincipal.add(cardPanel);
 
@@ -129,29 +129,72 @@ public class TorneoHubFrame extends JFrame {
         // Si no se encontró ningún torneo, deshabilitamos las acciones de juego
         if (idTorneoActivo == -1) {
             btnEntrar.setEnabled(false);
-            btnRanking.setEnabled(false);
+            btnPagar.setEnabled(false);
         }
 
         add(panelPrincipal);
     }
 
     private void configurarEventosBD() {
-        // Al entrar a las predicciones del torneo, heredamos la sesión e información de conexión
         btnEntrar.addActionListener(e -> {
-            // Aquí puedes instanciar tu Frame de predicciones grupales del torneo
         	new TorneoPrediccionesFrame(conexion, usuarioSesion).setVisible(true);
             dispose();
         });
 
-        btnRanking.addActionListener(e -> {
-            // Abre tu pantalla de Ranking global
-        	new RankingFrame(conexion, usuarioSesion).setVisible(true);
-            dispose();
+        btnPagar.addActionListener(e -> {
+            int opcion = JOptionPane.showConfirmDialog(
+                this, 
+                "¿Deseas pagar la inscripción para el Torneo? \n" + "\nCosto: $500.00", 
+                "Confirmar Pago", 
+                JOptionPane.YES_NO_OPTION, 
+                JOptionPane.QUESTION_MESSAGE
+            );
+            
+            if (opcion == JOptionPane.YES_OPTION) {
+                try {
+                    mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.InscripcionesDAO inscripcionesDAO = 
+                        new mx.unam.fes.acatlan.mac.proyectobd.backend.DAO.InscripcionesDAO(conexion);
+                    
+                    // LLAMADA AL PROCEDIMIENTO: idUsuario, idJornada = null (porque es torneo), tipoInscripcion = 2, monto = 500.00
+                    boolean exito = inscripcionesDAO.pagarInscripcionPorProcedimiento(
+                        usuarioSesion.getIdUsuario(), 
+                        null, 
+                        2, 
+                        500.00
+                    );
+                    
+                    if (exito) {
+                        // Sincronizar el estado del objeto en memoria local de la sesión de Java
+                        usuarioSesion.setSaldo(usuarioSesion.getSaldo() - 500.00);
+                        
+                        JOptionPane.showMessageDialog(
+                            this, 
+                            "¡Inscripción al Torneo generada con éxito!\nSe han descontado $500.00 de tu saldo.", 
+                            "Pago Exitoso", 
+                            JOptionPane.INFORMATION_MESSAGE
+                        );
+                        
+                        // Ventana al flujo de Torneo Completo
+                         new TorneoPrediccionesFrame(conexion, usuarioSesion).setVisible(true);
+                        dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(this, "No se pudo procesar la inscripción.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                    
+                } catch (java.sql.SQLException ex) {
+                    String mensajeError = ex.getMessage();
+                    if (mensajeError.contains("ERROR:")) {
+                        int inicio = mensajeError.indexOf("ERROR:") + 6;
+                        int fin = mensajeError.indexOf("\n", inicio);
+                        mensajeError = (fin != -1) ? mensajeError.substring(inicio, fin).trim() : mensajeError.substring(inicio).trim();
+                    }
+                    JOptionPane.showMessageDialog(this, "Transacción Rechazada:\n" + mensajeError, "Validación de la BD", JOptionPane.WARNING_MESSAGE);
+                }
+            }
         });
-
-        // Al volver, regresamos al frame de Selección de Quinielas manteniendo el estado intacto
+        
         btnVolver.addActionListener(e -> {
-            new SeleccionQuinielaFrame(conexion, usuarioSesion).setVisible(true);
+        	new SeleccionQuinielaFrame(conexion, usuarioSesion).setVisible(true);
             dispose();
         });
     }

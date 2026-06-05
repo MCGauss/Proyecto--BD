@@ -122,17 +122,15 @@ public class PartidosDAO {
      */
     public List<Partido> obtenerPartidosPorTorneo(int idTorneo) {
         List<Partido> lista = new ArrayList<>();
-        String query = 
-                "SELECT p.id_partido, p.id_jornada, p.id_eq_local, p.id_eq_vis, " +
-                "p.goles_eq_local, p.goles_eq_vis, p.fecha_hora_prog, p.id_status_partido, " +
-                "el.nombre_equipo AS local_nombre, el.logo AS local_logo, " + // <-- Corregido
-                "ev.nombre_equipo AS vis_nombre, ev.logo AS vis_logo " +   // <-- Corregido
-                "FROM partido p " + 
-                "INNER JOIN jornadas j ON p.id_jornada = j.id_jornada " + 
-                "INNER JOIN equipos el ON p.id_eq_local = el.id_equipo " + 
-                "INNER JOIN equipos ev ON p.id_eq_vis = ev.id_equipo " + 
-                "WHERE j.id_torneo = ? " + 
-                "ORDER BY j.id_jornada ASC, p.fecha_hora_prog ASC;";
+        String query = "SELECT p.id_partido, p.goles_eq_local, p.goles_eq_vis, " +
+                "p.id_eq_local, el.nombre_equipo AS local_nombre, el.logo AS local_logo, " + // <-- Agregar el logo local
+                "p.id_eq_vis, ev.nombre_equipo AS vis_nombre, ev.logo AS vis_logo " +       // <-- Agregar el logo visitante
+                "FROM partido p " +
+                "INNER JOIN jornadas j ON p.id_jornada = j.id_jornada " +
+                "INNER JOIN equipos el ON p.id_eq_local = el.id_equipo " +
+                "INNER JOIN equipos ev ON p.id_eq_vis = ev.id_equipo " +
+                "WHERE p.id_jornada = ? " + // Consulta por jornada
+                "ORDER BY p.fecha_hora_prog ASC;";
 
         try (PreparedStatement pstmt = conexion.prepareStatement(query)) {
             pstmt.setInt(1, idTorneo);
@@ -144,8 +142,8 @@ public class PartidosDAO {
                     partido.setGolesVisitante(rs.getInt("goles_eq_vis"));
                     
                     // Mapeo de equipos de manera local para las etiquetas
-                    Equipos local = new Equipos(rs.getInt("id_eq_local"), rs.getString("local_nombre"), null, null);
-                    Equipos visitante = new Equipos(rs.getInt("id_eq_vis"), rs.getString("vis_nombre"), null, null);
+                    Equipos local = new Equipos(rs.getInt("id_eq_local"), rs.getString("local_nombre"), rs.getString("local_logo"), null);
+                    Equipos visitante = new Equipos(rs.getInt("id_eq_vis"), rs.getString("vis_nombre"), rs.getString("vis_logo"), null);
                     partido.setEquipoLocal(local);
                     partido.setEquipoVisitante(visitante);
                     
