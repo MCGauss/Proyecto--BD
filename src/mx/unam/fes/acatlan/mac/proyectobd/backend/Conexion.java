@@ -3,6 +3,8 @@ package mx.unam.fes.acatlan.mac.proyectobd.backend;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import javax.swing.JPasswordField;
+import javax.swing.JOptionPane;
 
 public class Conexion {
     // El objeto Connection que guardará el puente activo
@@ -18,17 +20,20 @@ public class Conexion {
             // 1. Cargamos el Driver de PostgreSQL (el .jar)
             Class.forName("org.postgresql.Driver"); 
             
-
-            // 2. Definimos la dirección del servidor local de tu MacBook
-            
+            // Base de datos estándar para el equipo
             String servidor = "jdbc:postgresql://127.0.0.1:5432/prueba_proyecto"; 
             String usuarioDB = "postgres";
-            String passwordDB = "331968"; 
-
-            //Opción 2
-            //String servidor = "jdbc:postgresql://127.0.0.1:5432/dbLigaMX"; 
-            //String usuarioDB = "postgres";
-            //String passwordDB = "Jack09#"; 
+            
+            // Pedimos la contraseña dinámicamente con una ventana emergente estética de Swing
+            JPasswordField pf = new JPasswordField();
+            int okClic = JOptionPane.showConfirmDialog(null, pf, "contraseña de tu PostgreSQL local:", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+            
+            String passwordDB = "";
+            if (okClic == JOptionPane.OK_OPTION) {
+                passwordDB = new String(pf.getPassword());
+            } else {
+                System.exit(0); // Si cancela, cerramos limpio
+            }
             
             // 3. El DriverManager fabrica el puente físico usando las variables de arriba
             conn = DriverManager.getConnection(servidor, usuarioDB, passwordDB);
