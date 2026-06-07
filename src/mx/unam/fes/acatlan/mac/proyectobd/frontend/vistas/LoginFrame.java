@@ -48,7 +48,22 @@ public class LoginFrame extends JFrame {
         panelIzquierdo.setLayout(null);
 
         lblLogo = new JLabel();
-        // CORRECCIÓN DE RUTA: Al estar la carpeta 'Assets' fuera de src, 
+        // CORRECCIÓN DE RUTA UNIVERSAL: Cargamos la imagen directamente desde los recursos del JAR
+        // Recuerda respetar las mayúsculas/minúsculas tal cual están en Eclipse ('/Assets/logo.png')
+        java.net.URL urlLogo = getClass().getResource("/Assets/logo.png");
+        
+        if (urlLogo != null) {
+            ImageIcon iconoOriginal = new ImageIcon(urlLogo);
+            // Escalamos de forma suave (Smooth) para no perder calidad visual
+            Image imagenEscalada = iconoOriginal.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+            lblLogo.setIcon(new ImageIcon(imagenEscalada));
+        } else {
+            // Plan de respaldo en caso de que no encuentre el recurso (Evita que la app truene)
+            lblLogo.setText("[Logo No Encontrado]");
+            lblLogo.setForeground(Color.RED);
+            lblLogo.setHorizontalAlignment(SwingConstants.CENTER);
+        }
+        /*// CORRECCIÓN DE RUTA: Al estar la carpeta 'Assets' fuera de src, 
         // usamos File para verificar su existencia en la raíz del proyecto.
         File archivoLogo = new File("Assets/logo.png");
         if (archivoLogo.exists()) {
@@ -64,7 +79,7 @@ public class LoginFrame extends JFrame {
                 Image imagenEscalada = iconoOriginal.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
                 lblLogo.setIcon(new ImageIcon(imagenEscalada));
             }
-        }
+        }*/
         lblLogo.setBounds(125, 80, 200, 200);
 
         lblSistema = new JLabel("FOOTBETS", SwingConstants.CENTER);

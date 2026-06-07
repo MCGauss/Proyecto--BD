@@ -176,25 +176,17 @@ public class MenuPrincipal extends JFrame {
         private Image imagenFondo;
 
         public PanelFondoGif() {
-            // CORRECCIÓN DE DISCO: Validamos la carpeta externa 'Assets' que vimos en el árbol de Eclipse
-            File archivoGif = new File("Assets/futbol.gif");
-            if (archivoGif.exists()) {
-                imagenFondo = new ImageIcon(archivoGif.getAbsolutePath()).getImage();
+            // CORRECCIÓN DE RUTA UNIVERSAL: Mapeo directo desde la raíz del JAR empaquetado por Eclipse
+            java.net.URL urlGif = getClass().getResource("/Assets/futbol.gif");
+            
+            if (urlGif != null) {
+                //ImageIcon se encarga por sí mismo de animar el archivo .gif
+                imagenFondo = new ImageIcon(urlGif).getImage();
             } else {
-                // Fallback clásico por Classpath interno en src/assets por si acaso
-                java.net.URL url = getClass().getResource("/assets/futbol.gif");
-                if (url != null) {
-                    imagenFondo = new ImageIcon(url).getImage();
-                } else {
-                    // Fallback alternativo de recursos ordinario
-                    java.net.URL urlRecursos = getClass().getResource("/recursos/futbol.gif");
-                    if (urlRecursos != null) {
-                        imagenFondo = new ImageIcon(urlRecursos).getImage();
-                    }
-                }
+                // Imprime traza discreta en consola de desarrollo si falta el recurso
+                System.err.println("Advertencia: No se pudo cargar el recurso /Assets/futbol.gif");
             }
         }
-
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
